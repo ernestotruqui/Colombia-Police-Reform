@@ -1,0 +1,191 @@
+---
+title: 'Workshop #1'
+author: "Ernesto Truqui"
+date: "1/18/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, warning=F, message=F}
+library(tidyverse)
+library(ggplot2)
+#install.packages("maps")
+#install.packages("mapdata")
+library(maps)
+library(mapdata)
+#install.packages("sf")
+library(sf)
+library(readr)
+library(tidyr)
+#install.packages("vtable")
+library(vtable)
+library(dplyr)
+library(haven)
+library(readxl)
+library(lubridate)
+library(readr)
+library(sf)
+#install.packages("cowplot")
+library(cowplot)
+```
+
+```{r}
+rm(list = ls())
+path <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data" 
+
+data_manzana <- readxl::read_xlsx(file.path(path, "Data_Manzana_MDE.xlsx"))
+#shapefile <- st_read(file.path(path, "MGN_ANM_MANZANA.shp"))
+shapefile_small <- st_read(file.path(path, "manzanas_MEVAL.shp"))
+```
+
+```{r}
+shapefile_small <- shapefile_small %>%
+  rename(blockid = "COD_DANE_A")
+shapefile_full <- shapefile_small %>%
+  left_join(select(data_manzana, blockid, hom2012:hmot2019), by = "blockid")
+
+# why does the shapefile datset contain more blocks than data manzana? 
+anti <- anti_join(shapefile_small, data_manzana, by = "blockid")
+```
+
+
+```{r}
+shapefile_full_long <- shapefile_full %>%
+  pivot_longer(cols = c(hom2012:hmot2019),
+               names_to = "crime_year",
+               values_to = "crime_count")
+shapefile_full_long <- shapefile_full_long %>%
+  separate(col = crime_year,
+           into = c("crime_type", "crime_year"),
+           sep = "20")
+```
+
+
+# MAPA
+```{r}
+
+plot(shapefile_small$geometry)
+
+# Mapa por posgrados
+mapa_posgrados <- ggplot(data = shapefile_small,
+       aes(fill = TP51POSTGR, color = TP51POSTGR)) +
+  geom_sf() +
+  theme_void()
+
+# Mapa por estrato 1
+mapa_estrato1 <- ggplot(data = shapefile_small,
+       aes(fill = TP19_EE_E5, color = TP19_EE_E5)) +
+  geom_sf() +
+  theme_void()
+
+# Mapa homicidio 2019
+mapa_hom2019 <- ggplot(data = shapefile_full,
+       aes(fill = hom2019, color = hom2019)) +
+  geom_sf() +
+  theme_void() + 
+  scale_fill_viridis_b() +
+  scale_color_viridis_b()
+mapa_hom2019
+
+# Mapas vista junta
+# source: http://www.sthda.com/english/articles/24-ggpubr-publication-ready-plots/81-ggplot2-easy-way-to-mix-multiple-graphs-on-the-same-page/
+plot_grid(mapa_estrato1, mapa_hom2019,
+          labels = c("A", "B"),
+          ncol = 2)
+
+# Mapa homicidios 2012-2019
+ggplot(data = filter(shapefile_full_long, crime_type == "hom"),
+       aes(fill = crime_count, color = crime_count)) +
+  geom_sf() +
+  theme_void() 
+
+
+```
+
+
+
+
+```{r}
+pop_by_block <- data_manzana %>%
+  group_by(blockid) %>%
+  summarise(population = mean(TP27_PERSO)) %>%
+  arrange(-population)
+pop_by_block
+
+homes_w_elec <- data_manzana %>%
+  group_by(blockid) %>%
+  summarise(elec_homes = mean(TP19_EE_1)) %>%
+  arrange(-elec_homes)
+homes_w_elec  
+
+homes_w_wifi <- data_manzana %>%
+  group_by(blockid) %>%
+  summarise(wifi_homes = mean(TP19_INTE1)) %>%
+  arrange(-wifi_homes)
+homes_w_wifi
+
+pop_elec <- pop_by_block %>%
+  full_join(homes_w_elec)
+pop_elec_wifi <- pop_elec %>%
+  full_join(homes_w_wifi)
+pop_elec_wifi %>%
+  filter(population != 0) %>%
+  arrange(-elec_homes)
+
+ggplot(pop_elec_wifi,
+       aes(x = population)) +
+  geom_line(aes(y = elec_homes, color = "Electrified homes")) +
+  geom_line(aes(y = wifi_homes, color = "Homes with Internet"))
+```
+
+```{r}
+crime <- data_manzana %>%
+  group_by(blockid) %>%
+  summarise(homicides = hom2012 + hom2013 + hom2014 + hom2015 + hom2016 + hom2017 + hom2018 + hom2019,
+            avg_hom = mean(homicides),
+            robberies = hper2012 + hper2013 + hper2014 + hper2015 + hper2016 + hper2017 + hper2018 + hper2019,
+            avg_rob = mean(robberies),
+            car_thefts = hveh2012 + hveh2013 + hveh2014 + hveh2015 + hveh2016 + hveh2017 + hveh2018 + hveh2019,
+            avg_car_thefts = mean(car_thefts),
+            motor_thefts = hmot2012 + hmot2013 + hmot2014 + hmot2015 + hmot2016 + hmot2017 + hmot2018 + hmot2019,
+            avg_motor_thefts = mean(motor_thefts))
+avg_crime <- crime %>%
+  select(blockid, avg_hom, avg_rob, avg_car_thefts, avg_motor_thefts)
+
+pop_elec_wifi_crime <- pop_elec_wifi %>%
+  full_join(avg_crime)
+
+ggplot(pop_elec_wifi_crime %>% filter(population != 0), 
+       aes(x = population)) +
+  geom_line(aes(y = avg_hom, color = "avg_hom")) +
+  geom_line(aes(y = avg_rob, color = "avg_rob")) +
+  geom_line(aes(y = avg_car_thefts, color = "avg_car_thefts")) +
+  geom_line(aes(y = avg_motor_thefts, color = "avg_motor_thefts"))
+```
+
+```{r}
+top_10_elec <- homes_w_elec %>%
+  slice(1:10)
+top_10_elec
+top_10_wifi <- homes_w_wifi %>%
+  slice(1:10)
+top_10_wifi
+top_10_merge <- top_10_elec %>%
+  full_join(top_10_wifi)
+top_10_merge
+
+top_10_hom <- avg_crime %>%
+  select(blockid, avg_hom) %>%
+  arrange(-avg_hom) %>%
+  slice(1:10)
+top_10_rob <- avg_crime %>%
+  select(blockid, avg_rob) %>%
+  arrange(-avg_rob) %>%
+  slice(1:10)
+top_10_crime <- top_10_hom %>%
+  full_join(top_10_rob)
+top_10_crime
+```
