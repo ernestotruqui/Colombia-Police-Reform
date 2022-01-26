@@ -1,0 +1,44 @@
+---
+title: "Raw data"
+author: "Ernesto Truqui"
+date: "1/26/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo=F, warning=F, message=F}
+library(tidyverse)
+library(ggplot2)
+#install.packages("maps")
+#install.packages("mapdata")
+library(maps)
+library(mapdata)
+#install.packages("sf")
+library(sf)
+library(readr)
+library(tidyr)
+#install.packages("vtable")
+library(vtable)
+library(dplyr)
+library(haven)
+library(readxl)
+library(lubridate)
+library(readr)
+library(sf)
+#install.packages("cowplot")
+library(cowplot)
+```
+
+```{r}
+rm(list = ls())
+path <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data" 
+
+data_manzana <- read_xlsx(file.path(path, "Data_Manzana_MDE.xlsx"))
+#shapefile <- st_read(file.path(path, "MGN_ANM_MANZANA.shp"))
+shapefile_small <- st_read(file.path(path, "manzanas_MEVAL.shp"))
+```
+
+
