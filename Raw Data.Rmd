@@ -44,7 +44,6 @@ shapefile_small <- st_read(file.path(path, "manzanas_MEVAL.shp"))
 ```
 
 ```{r}
-colnames(shapefile_small)
 shapefile_small <- shapefile_small %>%
   apply_labels(COD_DANE_A = "Concatenated block code (dept, municipality, class, section, block)",
                DPTO_CCDGO = "Department code",
@@ -152,14 +151,153 @@ shapefile_small <- shapefile_small %>%
                CD_LC_CM   = "'Comuna' code",
                NMB_LC_CM  = "Name of 'comuna'",
                TP_LC_CM   = "Description of locality/'comuna'")
-unique(shapefile_small$TP_LC_CM)
+shapefile <- shapefile %>%
+  apply_labels(COD_DANE_A = "Concatenated block code (dept, municipality, class, section, block)",
+               DPTO_CCDGO = "Department code",
+               MPIO_CCDGO = "Municipal code",
+               MPIO_CDPMP = "Municipal code concatenated",
+               CLAS_CCDGO = "Class code: 1",
+               SETR_CCDGO = "Rural sector code",
+               SETR_CCNCT = "Rural sector code concatenated",
+               SECR_CCDGO = "Rural section code",
+               SECR_CCNCT = "Rural section code concatenated",
+               ZU_CCDGO   = "Urban zone code",
+               ZU_CDIVI   = "Urban zone code concatenated",
+               SETU_CCDGO = "Urban sector code",
+               SETU_CCNCT = "Urban sector code concatenated",
+               SECU_CCDGO = "Urban section code",
+               SECU_CCNCT = "Urban section code concatenated",
+               MANZ_CCDGO = "Block code",
+               AG_CCDGO   = "Geographical area code",
+               DATO_ANM   = "Name of anonymous layer",
+               VERSION    = "Year of geographical information",
+               AREA       = "Block area (sq ft)",
+               LATITUD    = "Latitude coordinate",
+               LONGITUD   = "Longitude coordinate",
+               DENSIDAD   = "Block inhabitants per m^2",
+               CTNENCUEST = "Number of CNPV 2018 surveys",
+               TP3_1_SI   = "Number of surveys in ethnic territory",
+               TP3_2_NO   = "Number of surveys NOT in ethnic territory",
+               TP3A_RI    = "Number of surveys in ethnic territory, indigenous refuge",
+               TP3B_TCN   = "Number of surveys in ethnic territory, collective black people's territory",
+               TP4_1_SI   = "Number of surveys reporting to be in protected area",
+               TP4_2_NO   = "Number of surveys NOT reporting to be in protected area",
+               TP9_1_USO  = "Number of units with housing use",
+               TP9_2_USO  = "Number of units with mixed use",
+               TP9_3_USO  = "Number of units with non-residential use",
+               TP9_4_USO  = "Number of units with special accomodation use",
+               TP9_2_1_MI = "Number of mixed non-residential units: industry",
+               TP9_2_2_MI = "Number of mixed non-residential units: commerce",
+               TP9_2_3_MI = "Number of mixed non-residential units: services",
+               TP9_2_4_MI = "Number of mixed non-residential units: agroindustrial, forestry",
+               TP9_2_9_MI = "Number of mixed non-residential units: no information",
+               TP9_3_1_NO = "Number of non-residential units: industry",
+               TP9_3_2_NO = "Number of non-residential units: commerce",
+               TP9_3_3_NO = "Number of non-residential units: services",
+               TP9_3_4_NO = "Number of non-residential units: agroindustrial, forestry",
+               TP9_3_5_NO = "Number of non-residential units: institutional",
+               TP9_3_6_NO = "Number of non-residential units: lot (unit without construction)",
+               TP9_3_7_NO = "Number of non-residential units: park/green zone",
+               TP9_3_8_NO = "Number of non-residential units: mining-energy",
+               TP9_3_9_NO = "Number of non-residential units: environmental protection/conservation",
+               TP9_3_10_N = "Number of non-residential units: in construction",
+               TP9_3_99_N = "Number of non-residential units: no information",
+               TVIVIENDA  = "Number of housing units",
+               TP14_1_TIP = "Number of housing units: house",
+               TP14_2_TIP = "Number of housing units: apartment",
+               TP14_3_TIP = "Number of housing units: room",
+               TP14_4_TIP = "Number of housing units: traditional indigenous housing",
+               TP14_5_TIP = "Number of housing units: traditional ethic housing (Afrocolombian, from islands, Rrom)",
+               TP14_6_TIP = "Number of housing units: other",
+               TP15_1_OCU = "Number of occupied housing units with people present",
+               TP15_2_OCU = "Number of occupied housing units with all people absent",
+               TP15_3_OCU = "Number of temporary housing units (vacation homes)",
+               TP15_4_OCU = "Number of unoccupied housing units",
+               TP16_HOG   = "Number of homes",
+               TP19_EE_1  = "Number of housing units with electricity",
+               TP19_EE_2  = "Number of housing units with NO electricity",
+               TP19_EE_E1 = "Number of housing units reporting to be in Stratum 1",
+               TP19_EE_E2 = "Number of housing units reporting to be in Stratum 2",
+               TP19_EE_E3 = "Number of housing units reporting to be in Stratum 3",
+               TP19_EE_E4 = "Number of housing units reporting to be in Stratum 4",
+               TP19_EE_E5 = "Number of housing units reporting to be in Stratum 5",
+               TP19_EE_E6 = "Number of housing units reporting to be in Stratum 6",
+               TP19_EE_E9 = "Number of housing units reporting to NOT know Stratum",
+               TP19_ACU_1 = "Number of units with aqueduct service",
+               TP19_ACU_2 = "Number of units without aqueduct service",
+               TP19_ALC_1 = "Number of units with sewarage service",
+               TP19_ALC_2 = "Number of units without sewarage service",
+               TP19_GAS_1 = "Number of units with natural gas service conected to public grid",
+               TP19_GAS_2 = "Number of units without natural gas service conected to public grid",
+               TP19_GAS_9 = "Number of units without information on natural gas service conected to public grid",
+               TP19_RECB1 = "Number of units with trash collection services",
+               TP19_RECB1 = "Number of units without trash collection services",
+               TP19_INTE1 = "Number of units with internet services",
+               TP19_INTE2 = "Number of units without internet services",
+               TP19_INTE9 = "Number of units without information on internet services",
+               TP27_PERSO = "Number of people",
+               PERSONAS_L = "Number of people in LEAS (Speacial Accomodation Zones)",
+               PERSONAS_S = "Number of people in private homes",
+               TP32_1_SEX = "Number of men",
+               TP32_2_SEX = "Number of women",
+               TP34_1_EDA = "Number of people between ages 0-9",
+               TP34_2_EDA = "Number of people between ages 10-19",
+               TP34_3_EDA = "Number of people between ages 20-29",
+               TP34_4_EDA = "Number of people between ages 30-39",
+               TP34_5_EDA = "Number of people between ages 40-49",
+               TP34_6_EDA = "Number of people between ages 50-59",
+               TP34_7_EDA = "Number of people between ages 60-69",
+               TP34_8_EDA = "Number of people between ages 70-79",
+               TP34_9_EDA = "Number of people between ages 80+",
+               TP51PRIMAR = "Number of people who's education level goes up to primary school",
+               TP51SECUND = "Number of people who's education level goes up to high school/technical school",
+               TP51SUPERI = "Number of people who's education level goes up to college/university/professional degree",
+               TP51POSTGR = "Number of people who's education level goes up to graduate school",
+               TP51_13_ED = "Number of people who have no education level",
+               TP51_99_ED = "Number of people without information about education level",
+               CD_LC_CM   = "'Comuna' code",
+               NMB_LC_CM  = "Name of 'comuna'",
+               TP_LC_CM   = "Description of locality/'comuna'")
+
 ```
 
 ```{r}
+#reduced shapefile_small to only important variables
 shapefile_small_trim <- shapefile_small %>%
   select(!c(MPIO_CDPMP, SETR_CCNCT, SECR_CCNCT, ZU_CDIVI, SETU_CCNCT, SECU_CCNCT, DATO_ANM, CTNENCUEST, starts_with("TP3"), starts_with("TP4"),  TP_LC_CM, TP51_99_ED, TP19_EE_E9, starts_with("TP9"), starts_with("TP14"), starts_with("TP15"), PERSONAS_L))
 
+#reduced shapefile to only important variables
+shapefile_trim <- shapefile %>%
+  select(!c(MPIO_CDPMP, SETR_CCNCT, SECR_CCNCT, ZU_CDIVI, SETU_CCNCT, SECU_CCNCT, DATO_ANM, CTNENCUEST, starts_with("TP3"), starts_with("TP4"),  TP_LC_CM, TP51_99_ED, TP19_EE_E9, starts_with("TP9"), starts_with("TP14"), starts_with("TP15"), PERSONAS_L))
+```
 
+```{r}
+data_manzana <- data_manzana %>%
+  rename("COD_DANE_A" = "blockid") %>%
+  apply_labels(COD_DANE_A = "Concatenated block code (dept, municipality, class, section, block)")
+#blocks without crime data
+anti <- anti_join(x = shapefile_small_trim, y = data_manzana, by = "COD_DANE_A")
+```
+
+```{r}
+# merge shapefile with crime data
+shapefile_crime <- shapefile_small_trim %>%
+  left_join(select(data_manzana, COD_DANE_A, hom2012:hmot2019), by = "COD_DANE_A")
+
+shapefile_crime_long <- shapefile_crime %>%
+  pivot_longer(cols = c(hom2012:hmot2019),
+               names_to = "crime_year",
+               values_to = "crime_count") %>%
+  separate(col = crime_year,
+           into = c("crime_type", "crime_year"),
+           sep = "20") %>%
+  mutate(crime_year = as.numeric(crime_year) + 2000,
+         crime_type = case_when(crime_type == "hom" ~ "homicide",
+                                crime_type == "hper" ~ "robbery",
+                                crime_type == "hveh" ~ "motor vehicle theft",
+                                crime_type == "motorcycle theft",
+                                TRUE ~ as.character(crime_type)))
 
 ```
+
 
