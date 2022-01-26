@@ -30,6 +30,8 @@ library(readr)
 library(sf)
 #install.packages("cowplot")
 library(cowplot)
+#install.packages("expss")
+library(expss)
 ```
 
 ```{r}
@@ -41,4 +43,60 @@ data_manzana <- read_xlsx(file.path(path, "Data_Manzana_MDE.xlsx"))
 shapefile_small <- st_read(file.path(path, "manzanas_MEVAL.shp"))
 ```
 
+```{r}
+colnames(shapefile_small)
+shapefile_small <- shapefile_small %>%
+  apply_labels(COD_DANE_A = "Concatenated block code (dept, municipality, class, section, block)",
+               DPTO_CCDGO = "Department code",
+               MPIO_CCDGO = "Municipal code",
+               MPIO_CDPMP = "Municipal code concatenated",
+               CLAS_CCDGO = "Class code: 1",
+               SETR_CCDGO = "Rural sector code",
+               SETR_CCNCT = "Rural sector code concatenated",
+               SECR_CCDGO = "Rural section code",
+               SECR_CCNCT = "Rural section code concatenated",
+               ZU_CCDGO   = "Urban zone code",
+               ZU_CDIVI   = "Urban zone code concatenated",
+               SETU_CCDGO = "Urban sector code",
+               SETU_CCNCT = "Urban sector code concatenated",
+               SECU_CCDGO = "Urban section code",
+               SECU_CCNCT = "Urban section code concatenated",
+               MANZ_CCDGO = "Block code",
+               AG_CCDGO   = "Geographical area code",
+               DATO_ANM   = "Name of anonymous layer",
+               VERSION    = "Year of geographical information",
+               AREA       = "Block area (sq ft)",
+               LATITUD    = "Latitude coordinate",
+               LONGITUD   = "Longitude coordinate",
+               DENSIDAD   = "Block inhabitants per m^2",
+               CTNENCUEST = "Number of CNPV 2018 surveys",
+               TP3_1_SI   = "Number of surveys in ethnic territory",
+               TP3_2_NO   = "Number of surveys NOT in ethnic territory",
+               TP3A_RI    = "Number of surveys in ethnic territory, indigenous refuge",
+               TP3B_TCN   = "Number of surveys in ethnic territory, collective black people's territory",
+               TP4_1_SI   = "Number of surveys reporting to be in protected area",
+               TP4_2_NO   = "Number of surveys NOT reporting to be in protected area",
+               TP9_1_USO  = "Number of units with housing use",
+               TP9_2_USO  = "Number of units with mixed use",
+               TP9_3_USO  = "Number of units with non-residential use",
+               TP9_4_USO  = "Number of units with special accomodation use",
+               TP9_2_1_MI = "Number of mixed non-residential units: industry",
+               TP9_2_2_MI = "Number of mixed non-residential units: commerce",
+               TP9_2_3_MI = "Number of mixed non-residential units: services",
+               TP9_2_4_MI = "Number of mixed non-residential units: agroindustrial, forestry",
+               TP9_2_9_MI = "Number of mixed non-residential units: no information",
+               TP9_3_1_NO = "Number of non-residential units: industry",
+               TP9_3_2_NO = "Number of non-residential units: commerce",
+               TP9_3_3_NO = "Number of non-residential units: services",
+               TP9_3_4_NO = "Number of non-residential units: agroindustrial, forestry",
+               TP9_3_5_NO = "Number of non-residential units: institutional",
+               TP9_3_6_NO = "Number of non-residential units: lot (unit without construction)",
+               TP9_3_7_NO = "Number of non-residential units: park/green zone",
+               TP9_3_8_NO = "Number of non-residential units: mining-energy",
+               TP9_3_9_NO = "Number of non-residential units: environmental protection/conservation",
+               TP9_3_10_N = "Number of non-residential units: in construction",
+               TP9_3_99_N = "Number of non-residential units: no information")
+
+unique(shapefile_small$VERSION)
+```
 
