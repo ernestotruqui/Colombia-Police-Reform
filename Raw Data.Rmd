@@ -283,7 +283,7 @@ anti <- anti_join(x = shapefile_small_trim, y = data_manzana, by = "COD_DANE_A")
 # merge shapefile with crime data
 shapefile_crime <- shapefile_small_trim %>%
   left_join(select(data_manzana, COD_DANE_A, hom2012:hmot2019), by = "COD_DANE_A")
-
+# make data tidy
 shapefile_crime_long <- shapefile_crime %>%
   pivot_longer(cols = c(hom2012:hmot2019),
                names_to = "crime_year",
@@ -295,9 +295,18 @@ shapefile_crime_long <- shapefile_crime %>%
          crime_type = case_when(crime_type == "hom" ~ "homicide",
                                 crime_type == "hper" ~ "robbery",
                                 crime_type == "hveh" ~ "motor vehicle theft",
-                                crime_type == "motorcycle theft",
+                                crime_type == "hmot" ~ "motorcycle theft",
                                 TRUE ~ as.character(crime_type)))
-
 ```
+
+```{r}
+shapefile_crime_long %>%
+  group_by(COD_DANE_A) %>%
+  summarise(total_crimes = sum(crime_count)) %>%
+  head(10)
+
+unique(shapefile_crime_long$)
+```
+
 
 
