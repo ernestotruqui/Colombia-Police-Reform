@@ -301,11 +301,12 @@ shapefile_crime_long <- shapefile_crime %>%
 
 ```{r}
 shapefile_crime_long %>%
-  group_by(COD_DANE_A) %>%
+  slice
+  group_by(SETU_CCDGO) %>%
   summarise(total_crimes = sum(crime_count)) %>%
   head(10)
 
-unique(shapefile_crime_long$)
+unique(shapefile_crime_long$SETU_CCDGO)
 ```
 
 
