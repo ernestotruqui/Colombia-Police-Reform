@@ -266,21 +266,17 @@ shapefile <- shapefile %>%
 shapefile_small_trim <- shapefile_small %>%
   select(!c(MPIO_CDPMP, SETR_CCNCT, SECR_CCNCT, ZU_CDIVI, SETU_CCNCT, SECU_CCNCT, DATO_ANM, CTNENCUEST, starts_with("TP3"), starts_with("TP4"),  TP_LC_CM, TP51_99_ED, TP19_EE_E9, starts_with("TP9"), starts_with("TP14"), starts_with("TP15"), PERSONAS_L))
 
-#reduced shapefile to only important variables
-shapefile_trim <- shapefile %>%
-  select(!c(MPIO_CDPMP, SETR_CCNCT, SECR_CCNCT, ZU_CDIVI, SETU_CCNCT, SECU_CCNCT, DATO_ANM, CTNENCUEST, starts_with("TP3"), starts_with("TP4"),  TP_LC_CM, TP51_99_ED, TP19_EE_E9, starts_with("TP9"), starts_with("TP14"), starts_with("TP15"), PERSONAS_L))
+### reduced shapefile to only important variables
+#shapefile_trim <- shapefile %>%
+#  select(!c(MPIO_CDPMP, SETR_CCNCT, SECR_CCNCT, ZU_CDIVI, SETU_CCNCT, SECU_CCNCT, DATO_ANM, CTNENCUEST, starts_with("TP3"), #starts_with("TP4"),  TP_LC_CM, TP51_99_ED, TP19_EE_E9, starts_with("TP9"), starts_with("TP14"), starts_with("TP15"), #PERSONAS_L))
 ```
 
-```{r}
-data_manzana <- data_manzana %>%
-  rename("COD_DANE_A" = "blockid") %>%
-  apply_labels(COD_DANE_A = "Concatenated block code (dept, municipality, class, section, block)")
-#blocks without crime data
-anti <- anti_join(x = shapefile_small_trim, y = data_manzana, by = "COD_DANE_A")
-```
 
 ```{r}
 # merge shapefile with crime data
+data_manzana <- data_manzana %>%
+  rename("COD_DANE_A" = "blockid") %>%
+  apply_labels(COD_DANE_A = "Concatenated block code (dept, municipality, class, section, block)")
 shapefile_crime <- shapefile_small_trim %>%
   left_join(select(data_manzana, COD_DANE_A, hom2012:hmot2019), by = "COD_DANE_A")
 # make data tidy
