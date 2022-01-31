@@ -1,7 +1,9 @@
 # Set Environment####
 ## set wd and path####
-setwd("E:/Files/HaHaHariss/22Winter/Policy Lab/Police Reform Policy Lab/G2 -Patrolling strategies and complementary social interventions")
-PATH <- "E:/Files/HaHaHariss/22Winter/Policy Lab"
+#setwd("E:/Files/HaHaHariss/22Winter/Policy Lab/Police Reform Policy Lab/G2 -Patrolling strategies and complementary social interventions")
+#PATH <- "E:/Files/HaHaHariss/22Winter/Policy Lab"
+
+PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform"
 
 ## load libraries####
 library(readxl)
@@ -11,22 +13,24 @@ library(ggplot2)
 # Read Data####
 
 ## crime data####
-df_crime <- read_excel('Data_Manzana_MDE.xlsx')[,c(4,37:68)]
+#df_crime <- read_excel('Data_Manzana_MDE.xlsx')[,c(4,37:68)]
+df_crime <- read_xlsx(file.path(path, "Data_Manzana_MDE.xlsx"))[, c(4, 37:68)]
 
 ## shape file####
 #df_shp <- st_read('E:/Files/HaHaHariss/22Winter/Policy Lab')
-df_shp <- st_read(file.path(PATH, "Shapefiles/08_Manzanas"))[,1:106]
+# df_shp <- st_read(file.path(PATH, "Shapefiles/08_Manzanas"))[,1:106]
+shp_small <- st_read(file.path(path, "manzanas_MEVAL.shp"))
 
 # Clean Data####
 ## add labels####
 # create function
-add_labels <- function(df,dict_filename,path=PATH){
+add_labels <- function(df, dict_filename, path=PATH){
   
   # load library
   library(labelled)
   
   # read dictionary
-  dict <- read.csv(file.path(path,dict_filename))
+  dict <- read.csv(file.path(path, dict_filename))
   colnames(dict) <- c('colname','label')
   # create named list
   nlist <- dict$label
@@ -59,11 +63,11 @@ df_shp <- select_cols(df_shp,'Selected data dictionary.xlsx')
 colnames(df_crime)[1] <- colnames(df_shp)[1]
 
 # merge
-df_main <- merge(df_shp,df_crime,by=colnames(df_shp)[1])
-df_main_all <- merge(df_shp,df_crime,by=colnames(df_shp)[1],all=T)
+df_main <- merge(df_shp, df_crime, by = colnames(df_shp)[1])
+df_main_all <- merge(df_shp, df_crime, by = colnames(df_shp)[1],all=T)
 
 ## check for NAs####
-sum(is.na(df_main_all$hom2012))-sum(is.na(df_main$hom2012))
+sum(is.na(df_main_all$hom2012)) - sum(is.na(df_main$hom2012))
 # missing crime data for 4128 blocks!
 # distribution of blocks without crime data
 ggplot(df_main_all)+
