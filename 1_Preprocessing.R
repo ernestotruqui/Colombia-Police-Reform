@@ -3,23 +3,41 @@
 #setwd("E:/Files/HaHaHariss/22Winter/Policy Lab/Police Reform Policy Lab/G2 -Patrolling strategies and complementary social interventions")
 #PATH <- "E:/Files/HaHaHariss/22Winter/Policy Lab"
 
-PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform"
+PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data"
 
 ## load libraries####
-library(readxl)
-library(sf)
+library(tidyverse)
 library(ggplot2)
+#install.packages("maps")
+#install.packages("mapdata")
+library(maps)
+library(mapdata)
+#install.packages("sf")
+library(sf)
+library(readr)
+library(tidyr)
+#install.packages("vtable")
+library(vtable)
+library(dplyr)
+library(haven)
+library(readxl)
+library(lubridate)
+library(readr)
+library(sf)
+#install.packages("cowplot")
+library(cowplot)
+#install.packages("expss")
+library(expss)
 
 # Read Data####
 
 ## crime data####
-#df_crime <- read_excel('Data_Manzana_MDE.xlsx')[,c(4,37:68)]
 df_crime <- read_xlsx(file.path(path, "Data_Manzana_MDE.xlsx"))[, c(4, 37:68)]
 
 ## shape file####
-#df_shp <- st_read('E:/Files/HaHaHariss/22Winter/Policy Lab')
-# df_shp <- st_read(file.path(PATH, "Shapefiles/08_Manzanas"))[,1:106]
-shp_small <- st_read(file.path(path, "manzanas_MEVAL.shp"))
+#df_shp <- st_read(file.path(PATH, 'E:/Files/HaHaHariss/22Winter/Policy Lab'))
+#df_shp <- st_read(file.path(PATH, "Shapefiles/08_Manzanas"))[,1:106]
+df_shp <- st_read(file.path(path, "manzanas_MEVAL.shp"))[, 1:106]
 
 # Clean Data####
 ## add labels####
