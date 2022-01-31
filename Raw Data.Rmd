@@ -357,6 +357,11 @@ map_graduate  <- ggplot(data = shp_educ,
 plot_grid(map_primaryschool, map_secondaryschool, map_college, map_graduate,
           labels = c("Primary School", "Secondary School", "College", "Graduate School"),
           ncol = 2)
+
+```
+
+# Poverty maps
+```{r}
 # Poor households
 ggplot(data = shp_strata ,
        aes(fill = poor, color = poor)) +
@@ -365,8 +370,54 @@ ggplot(data = shp_strata ,
   labs(title = "Poverty in Medellin",
        subtitle = "Street block as a unit of analysis",
        caption = "Poverty = 1 when block has most households belonging to Stratum 1 or 2")
+# Plots by stratum
+map_stratum1 <- ggplot(data = shp_strata ,
+       aes(fill = stratum1_perc, color = stratum1_perc)) +
+  geom_sf() +
+  theme_void() +
+  scale_fill_viridis_c() +
+  scale_color_viridis_c() +
+  labs(title = "% of Housing Units in Stratum 1")
+map_stratum2 <- ggplot(data = shp_strata ,
+       aes(fill = stratum2_perc, color = stratum2_perc)) +
+  geom_sf() +
+  theme_void() +
+  scale_fill_viridis_c() +
+  scale_color_viridis_c() +
+  labs(title = "% of Housing Units in Stratum 2")
+map_stratum3 <- ggplot(data = shp_strata ,
+       aes(fill = stratum3_perc, color = stratum3_perc)) +
+  geom_sf() +
+  theme_void() +
+  scale_fill_viridis_c() +
+  scale_color_viridis_c() +
+  labs(title = "% of Housing Units in Stratum 3")
+map_stratum4 <- ggplot(data = shp_strata ,
+       aes(fill = stratum4_perc, color = stratum4_perc)) +
+  geom_sf() +
+  theme_void() +
+  scale_fill_viridis_c() +
+  scale_color_viridis_c() +
+  labs(title = "% of Housing Units in Stratum 4")
+map_stratum5 <- ggplot(data = shp_strata ,
+       aes(fill = stratum5_perc, color = stratum5_perc)) +
+  geom_sf() +
+  theme_void() +
+  scale_fill_viridis_c() +
+  scale_color_viridis_c() +
+  labs(title = "% of Housing Units in Stratum 5")
+map_stratum6 <- ggplot(data = shp_strata ,
+       aes(fill = stratum6_perc, color = stratum6_perc)) +
+  geom_sf() +
+  theme_void() +
+  scale_fill_viridis_c() +
+  scale_color_viridis_c() +
+  labs(title = "% of Housing Units in Stratum 6")
 
-  
+plot_grid(map_stratum1, map_stratum2, map_stratum3, map_stratum4, map_stratum5, map_stratum6,
+          ncol = 3)
+?plot_grid
+
 ```
 
 
