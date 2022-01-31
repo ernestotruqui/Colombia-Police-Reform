@@ -29,18 +29,17 @@ library(cowplot)
 #install.packages("expss")
 library(expss)
 
-# Read Data####
+# Read Data ####
 
-## crime data####
+## crime data ####
 df_crime <- read_xlsx(file.path(path, "Data_Manzana_MDE.xlsx"))[, c(4, 37:68)]
 
-## shape file####
-#df_shp <- st_read(file.path(PATH, 'E:/Files/HaHaHariss/22Winter/Policy Lab'))
-#df_shp <- st_read(file.path(PATH, "Shapefiles/08_Manzanas"))[,1:106]
+## shape file ####
+#df_shp <- st_read(file.path(PATH, "MGN_ANM_MANZANA.shp"))
 df_shp <- st_read(file.path(path, "manzanas_MEVAL.shp"))[, 1:106]
 
-# Clean Data####
-## add labels####
+# Clean Data ####
+## add labels ####
 # create function
 add_labels <- function(df, dict_filename, path=PATH){
   
