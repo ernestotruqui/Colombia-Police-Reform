@@ -281,8 +281,8 @@ data_manzana <- data_manzana %>%
 shapefile_crime <- shapefile_small_trim %>%
   left_join(select(data_manzana, COD_DANE_A, hom2012:hmot2019), by = "COD_DANE_A")
 
-# convert strata columns into percentages
-shp_demograph <- shapefile_crime %>%
+# convert demographics columns into percentages
+shp_strata <- shapefile_crime %>%
   filter(TVIVIENDA != 0,
          TP19_EE_E9 == 0) %>%
   mutate(stratum1_perc = TP19_EE_E1/TVIVIENDA, 
@@ -293,7 +293,15 @@ shp_demograph <- shapefile_crime %>%
          stratum6_perc = TP19_EE_E6/TVIVIENDA,
          poor = as.factor(ifelse(stratum1_perc > stratum2_perc & stratum1_perc > stratum3_perc & stratum1_perc > stratum4_perc & stratum1_perc > stratum5_perc & stratum1_perc > stratum6_perc | stratum2_perc > stratum1_perc & stratum2_perc > stratum3_perc & stratum2_perc > stratum4_perc & stratum2_perc > stratum5_perc & stratum2_perc > stratum6_perc, 1, 0)))
 
-summary(shp_demograph$poor)
+shp_educ <- shapefile_crime %>%
+  filter(TP27_PERSO != 0) %>%
+  mutate(primary_school   = TP51PRIMAR/TP27_PERSO,
+         secondary_school = TP51SECUND/TP27_PERSO,
+         college          = TP51SUPERI/TP27_PERSO,
+         graduate_school  = TP51POSTGR/TP27_PERSO,
+         no_school        = TP51_13_ED/TP27_PERSO)
+  
+summary(shp_demograph$TP51_13_ED)
 ```
 
 # Make data tidy - convert to long by crime
@@ -315,16 +323,42 @@ shapefile_crime_long <- shapefile_crime %>%
 ```
 
 
-# Demographics maps 
+# Education maps 
 ```{r}
-# Higher education
-ggplot(data = shapefile_crime,
-       aes(fill = TP51POSTGR, color = TP51POSTGR)) +
+# Education
+map_primaryschool <- ggplot(data = shp_educ,
+       aes(fill = primary_school, color = primary_school)) +
   geom_sf() +
-  theme_void()
+  theme_void() +
+  scale_fill_viridis_c() +
+  scale_color_viridis_c()
+map_secondaryschool <- ggplot(data = shp_educ,
+       aes(fill = secondary_school, color = secondary_school)) +
+  geom_sf() +
+  theme_void() +
+  scale_fill_viridis_c() +
+  scale_color_viridis_c()
+map_college <- ggplot(data = shp_educ,
+       aes(fill = college, color = college)) +
+  geom_sf() +
+  theme_void() +
+  scale_fill_viridis_c() +
+  scale_color_viridis_c()
+map_graduate  <- ggplot(data = shp_educ,
+       aes(fill = graduate_school, color = graduate_school)) +
+  geom_sf() +
+  theme_void() +
+  scale_fill_viridis_c() +
+  scale_color_viridis_c()
 
+
+
+# source: http://www.sthda.com/english/articles/24-ggpubr-publication-ready-plots/81-ggplot2-easy-way-to-mix-multiple-graphs-on-the-same-page/
+plot_grid(map_primaryschool, map_secondaryschool, map_college, map_graduate,
+          labels = c("Primary School", "Secondary School", "College", "Graduate School"),
+          ncol = 2)
 # Poor households
-ggplot(data = shp_demograph ,
+ggplot(data = shp_strata ,
        aes(fill = poor, color = poor)) +
   geom_sf() +
   theme_void() +
