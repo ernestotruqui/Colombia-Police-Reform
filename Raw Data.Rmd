@@ -304,6 +304,14 @@ shp_educ <- shapefile_crime %>%
 summary(shp_demograph$TP51_13_ED) 
 ```
 
+
+
+
+
+
+
+
+
 # Make data tidy - convert to long by crime
 ```{r}
 # make data tidy
@@ -321,6 +329,14 @@ shapefile_crime_long <- shapefile_crime %>%
                                 crime_type == "hmot" ~ "motorcycle theft",
                                 TRUE ~ as.character(crime_type)))
 ```
+
+
+
+
+
+
+
+
 
 
 # Education maps 
