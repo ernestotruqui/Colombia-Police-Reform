@@ -6,7 +6,7 @@ PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/20
 
 ## load libraries####
 library(tidyverse)
-library(ggplot2)
+library(ggplot2) 
 #install.packages("maps")
 #install.packages("mapdata")
 library(maps)
@@ -81,9 +81,53 @@ colnames(df_crime)[1] <- colnames(df_shp)[1]
 # merge
 df_main <- merge(df_shp, df_crime, by = colnames(df_shp)[1])
 
-# DEMOGRAPHIC DFs
+# DEMOGRAPHIC DFs -----
 
-## Economic strata df
+# Education -----
+df_educ <- df_main %>%
+  filter(TP27_PERSO != 0) %>%
+  mutate(primary_school   = TP51PRIMAR/TP27_PERSO,
+         secondary_school = TP51SECUND/TP27_PERSO,
+         college          = TP51SUPERI/TP27_PERSO,
+         graduate_school  = TP51POSTGR/TP27_PERSO,
+         no_school        = TP51_13_ED/TP27_PERSO)
+
+# Education maps
+map_primaryschool <- ggplot(
+  data = df_educ,
+  aes(fill = primary_school, color = primary_school)) +
+  geom_sf() +
+  theme_void() +
+  scale_fill_viridis_c() +
+  scale_color_viridis_c()
+map_secondaryschool <- ggplot(
+  data = df_educ,
+  aes(fill = secondary_school, color = secondary_school)) +
+  geom_sf() +
+  theme_void() +
+  scale_fill_viridis_c() +
+  scale_color_viridis_c()
+map_college <- ggplot(
+  data = df_educ,
+  aes(fill = college, color = college)) +
+  geom_sf() +
+  theme_void() +
+  scale_fill_viridis_c() +
+  scale_color_viridis_c()
+map_graduate  <- ggplot(
+  data = df_educ,
+  aes(fill = graduate_school, color = graduate_school)) +
+  geom_sf() +
+  theme_void() +
+  scale_fill_viridis_c() +
+  scale_color_viridis_c()
+# source: http://www.sthda.com/english/articles/24-ggpubr-publication-ready-plots/81-ggplot2-easy-way-to-mix-multiple-graphs-on-the-same-page/
+plot_grid(map_primaryschool, map_secondaryschool, map_college, map_graduate,
+          labels = c("Primary School", "Secondary School", "College", "Graduate School"),
+          ncol = 2)
+
+
+## Economic strata  -----
 df_strata <- df_main %>%
   filter(TVIVIENDA != 0,
          TP19_EE_E9 == 0) %>%
@@ -94,13 +138,58 @@ df_strata <- df_main %>%
          stratum5_perc = TP19_EE_E5/TVIVIENDA,
          stratum6_perc = TP19_EE_E6/TVIVIENDA,
          poor = as.factor(ifelse(stratum1_perc > stratum2_perc & stratum1_perc > stratum3_perc & stratum1_perc > stratum4_perc & stratum1_perc > stratum5_perc & stratum1_perc > stratum6_perc | stratum2_perc > stratum1_perc & stratum2_perc > stratum3_perc & stratum2_perc > stratum4_perc & stratum2_perc > stratum5_perc & stratum2_perc > stratum6_perc, 1, 0)))
-# Education df
-df_educ <- df_main %>%
-  filter(TP27_PERSO != 0) %>%
-  mutate(primary_school   = TP51PRIMAR/TP27_PERSO,
-         secondary_school = TP51SECUND/TP27_PERSO,
-         college          = TP51SUPERI/TP27_PERSO,
-         graduate_school  = TP51POSTGR/TP27_PERSO,
-         no_school        = TP51_13_ED/TP27_PERSO)
 
+# Poor households map
+ggplot(data = df_strata ,
+       aes(fill = poor, color = poor)) +
+  geom_sf() +
+  theme_void() +
+  labs(title = "Poverty in Medellin",
+       subtitle = "Street block as a unit of analysis",
+       caption = "Poverty = 1 when block has most households belonging to Stratum 1 or 2")
+# Plots by stratum
+map_stratum1 <- ggplot(data = df_strata ,
+                       aes(fill = stratum1_perc, color = stratum1_perc)) +
+  geom_sf() +
+  theme_void() +
+  scale_fill_viridis_c() +
+  scale_color_viridis_c() +
+  labs(title = "% of Housing Units in Stratum 1")
+map_stratum2 <- ggplot(data = df_strata ,
+                       aes(fill = stratum2_perc, color = stratum2_perc)) +
+  geom_sf() +
+  theme_void() +
+  scale_fill_viridis_c() +
+  scale_color_viridis_c() +
+  labs(title = "% of Housing Units in Stratum 2")
+map_stratum3 <- ggplot(data = df_strata ,
+                       aes(fill = stratum3_perc, color = stratum3_perc)) +
+  geom_sf() +
+  theme_void() +
+  scale_fill_viridis_c() +
+  scale_color_viridis_c() +
+  labs(title = "% of Housing Units in Stratum 3")
+map_stratum4 <- ggplot(data = df_strata ,
+                       aes(fill = stratum4_perc, color = stratum4_perc)) +
+  geom_sf() +
+  theme_void() +
+  scale_fill_viridis_c() +
+  scale_color_viridis_c() +
+  labs(title = "% of Housing Units in Stratum 4")
+map_stratum5 <- ggplot(data = df_strata ,
+                       aes(fill = stratum5_perc, color = stratum5_perc)) +
+  geom_sf() +
+  theme_void() +
+  scale_fill_viridis_c() +
+  scale_color_viridis_c() +
+  labs(title = "% of Housing Units in Stratum 5")
+map_stratum6 <- ggplot(data = df_strata ,
+                       aes(fill = stratum6_perc, color = stratum6_perc)) +
+  geom_sf() +
+  theme_void() +
+  scale_fill_viridis_c() +
+  scale_color_viridis_c() +
+  labs(title = "% of Housing Units in Stratum 6")
 
+plot_grid(map_stratum1, map_stratum2, map_stratum3, map_stratum4, map_stratum5, map_stratum6,
+          ncol = 3)
