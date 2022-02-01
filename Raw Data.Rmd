@@ -301,7 +301,7 @@ shp_educ <- shapefile_crime %>%
          graduate_school  = TP51POSTGR/TP27_PERSO,
          no_school        = TP51_13_ED/TP27_PERSO)
   
-summary(shp_demograph$TP51_13_ED)
+summary(shp_demograph$TP51_13_ED) 
 ```
 
 # Make data tidy - convert to long by crime
