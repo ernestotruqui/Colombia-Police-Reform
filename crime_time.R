@@ -12,13 +12,11 @@ df_homicides19 <- df_homicides19 %>%
          lon = as.numeric(lon)) %>%
   st_as_sf(coords = c("lon", "lat"), crs = 4326)
 
-
-ggplot() +
-  geom_sf(data = df_homicides19)
-st_crs(df_homicides19)
-
 quadrants <- st_read(file.path(path, "lines.shp"))
 
 
-unique(df_homicides19$modality)
 
+
+ggplot() +
+  #geom_sf(data = quadrants) +
+  geom_sf(data = df_homicides19)
