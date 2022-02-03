@@ -36,7 +36,7 @@ df_crime <- read_xlsx(file.path(PATH, "Data_Manzana_MDE.xlsx"))[, c(4, 37:68)]
 ## shape file ####
 #df_shp <- st_read(file.path(PATH, "MGN_ANM_MANZANA.shp"))
 df_shp <- st_read(file.path(PATH, "manzanas_MEVAL.shp"))[, 1:106]
-
+st_crs(df_shp)
 # Clean Data ####
 ## add labels ####
 # create function
@@ -93,31 +93,30 @@ df_educ <- df_main %>%
          no_school        = TP51_13_ED/TP27_PERSO)
 
 # Education maps
-map_primaryschool <- ggplot(
-  data = df_educ,
-  aes(fill = primary_school, color = primary_school)) +
-  geom_sf() +
+map_primaryschool <- ggplot() +
+  geom_sf(data = df_educ,
+          aes(fill = primary_school, color = primary_school)) +
+  theme_void() +
+  scale_fill_viridis_c() +
+  scale_color_viridis_c() 
+map_secondaryschool <- ggplot() +
+  geom_sf(
+    data = df_educ,
+    aes(fill = secondary_school, color = secondary_school)) +
   theme_void() +
   scale_fill_viridis_c() +
   scale_color_viridis_c()
-map_secondaryschool <- ggplot(
-  data = df_educ,
-  aes(fill = secondary_school, color = secondary_school)) +
-  geom_sf() +
+map_college <- ggplot() +
+  geom_sf(
+    data = df_educ,
+    aes(fill = college, color = college)) +
   theme_void() +
   scale_fill_viridis_c() +
   scale_color_viridis_c()
-map_college <- ggplot(
-  data = df_educ,
-  aes(fill = college, color = college)) +
-  geom_sf() +
-  theme_void() +
-  scale_fill_viridis_c() +
-  scale_color_viridis_c()
-map_graduate  <- ggplot(
-  data = df_educ,
-  aes(fill = graduate_school, color = graduate_school)) +
-  geom_sf() +
+map_graduate  <- ggplot() +
+  geom_sf(
+    data = df_educ,
+    aes(fill = graduate_school, color = graduate_school)) +
   theme_void() +
   scale_fill_viridis_c() +
   scale_color_viridis_c()
