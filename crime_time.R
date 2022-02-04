@@ -16,8 +16,9 @@ df_homicides19 <- df_homicides19_raw %>%
          lon = as.numeric(lon),
          crime_type = "homicide") %>%
   st_as_sf(coords = c("lon", "lat"), crs = 4326) %>%
-  select(c(crime_type, date, time, geometry)) %>%
-  rename(hour = time)
+  select(c(crime_type, date, time, zone, geometry)) %>%
+  rename(hour = time,
+         cod_dane = zone)
 
 df_theft19_raw <- read_csv(file.path(path, "theft_2019.csv"))
 df_theft19 <- df_theft19_raw %>%
@@ -26,7 +27,7 @@ df_theft19 <- df_theft19_raw %>%
   #filter(str_detect(df_theft19$cod_dane, "50011000")) %>%
   st_as_sf(coords = c("lon", "lat"), crs = 4326) %>%
   mutate(crime_type = "theft") %>%
-  select(c(crime_type, date, time, geometry)) %>%
+  select(c(crime_type, date, time, cod_dane, geometry)) %>%
   mutate(time = hour(time)) %>%
   rename(hour = time)
 
@@ -37,7 +38,7 @@ df_burglary19 <- df_burglary19_raw %>%
   st_as_sf(coords = c("lon", "lat"), crs = 4326) %>%
   mutate(crime_type = "burglary",
          time = hour(time)) %>%
-  select(c(crime_type, date, time, geometry)) %>%
+  select(c(crime_type, date, time, cod_dane, geometry)) %>%
   rename(hour = time)
 
 df_vtheft19_raw <- read_csv(file.path(path, "vehicle_theft_2019.csv"))
@@ -50,10 +51,10 @@ df_vtheft19 <- df_vtheft19_raw %>%
          crime_type = "vehicle theft",
          time = hour(time)) %>%
   st_as_sf(coords = c("lon", "lat"), crs = 4326) %>%
-  select(c(crime_type, date, time, geometry)) %>%
+  select(c(crime_type, date, time, cod_dane,geometry)) %>%
   rename(hour = time)
 
-df_crime19 <- rbind(df_homicides19, df_theft19)
+df_crime19 <- rbind(df_homicides19, df_theft19, df_burglary19, df_vtheft19)
 
 
 ggplot() +
