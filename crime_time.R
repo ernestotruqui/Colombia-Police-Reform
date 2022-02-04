@@ -24,7 +24,7 @@ df_theft19_raw <- read_csv(file.path(path, "theft_2019.csv"))
 df_theft19 <- df_theft19_raw %>%
   mutate(cod_dane = as.character(cod_dane),
          cod_dane = ifelse(is.na(cod_dane), "NA", cod_dane)) %>%
-  #filter(str_detect(df_theft19$cod_dane, "50011000")) %>%
+  #filter(str_detect(df_theft19$cod_dane, "5001")) %>%
   st_as_sf(coords = c("lon", "lat"), crs = 4326) %>%
   mutate(crime_type = "theft") %>%
   select(c(crime_type, date, time, cod_dane, geometry)) %>%
@@ -34,7 +34,7 @@ df_theft19 <- df_theft19_raw %>%
 df_burglary19_raw <- read_csv(file.path(path, "burglary_2019.csv"))
 df_burglary19 <- df_burglary19_raw %>%
   mutate(cod_dane = as.character(cod_dane)) %>%
-  #filter(str_detect(df_burglary19$cod_dane, "50011000"))
+  #filter(str_detect(df_burglary19$cod_dane, "5001")) %>%
   st_as_sf(coords = c("lon", "lat"), crs = 4326) %>%
   mutate(crime_type = "burglary",
          time = hour(time)) %>%
