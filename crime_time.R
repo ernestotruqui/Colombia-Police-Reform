@@ -1,7 +1,7 @@
 library(tidyverse)
 library(sf)
 library(readxl)
-
+library(lubridate)
 path <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data"
 
 quadrants <- st_read(file.path(path, "lines.shp"))
@@ -14,13 +14,16 @@ df_homicides19 <- df_homicides19_raw %>%
          lon = as.numeric(lon),
          crime_type = "homicide") %>%
   st_as_sf(coords = c("lon", "lat"), crs = 4326) %>%
-  select(c(crime_type, date, time, geometry))
+  select(c(crime_type, date, time, geometry)) %>%
+  rename(hour = time)
 
 df_theft19_raw <- read_csv(file.path(path, "theft_2019.csv"))
 df_theft19 <- df_theft19_raw %>%
   st_as_sf(coords = c("lon", "lat"), crs = 4326) %>%
   mutate(crime_type = "theft") %>%
-  select(c(crime_type, date, time, geometry))
+  select(c(crime_type, date, time, geometry)) %>%
+  mutate(time = hour(time)) %>%
+  rename(hour = time)
 
 #limpiar formato de hora - separar hora y minutos
 #repetir lo de arriba abajo, filtar df y hacer rbind con todas juntas
