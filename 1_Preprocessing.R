@@ -70,7 +70,7 @@ df_crime <- add_labels(df_crime,'crime_labels.csv')
 ## merge data####
 
 # drop useless cols
-select_cols <- function(df, dict_filename, path=PATH){
+select_cols <- function(df, dict_filename, path = PATH){
   dict_colname <- read_excel(file.path(path, dict_filename))
   df <- df[, dict_colname$Variable]
 }
@@ -79,6 +79,21 @@ df_shp <- select_cols(df_shp,'Selected data dictionary.xlsx')
 # rename cols
 colnames(df_crime)[1] <- colnames(df_shp)[1]
 
-# merge
+# df with all important socio-demographic info and crime, by block, geocoded
 df_main <- merge(df_shp, df_crime, by = colnames(df_shp)[1])
 
+# df with only crime info, by block, geocoded
+df_crime_geo <- merge(df_shp %>% select(COD_DANE_A, geometry), df_crime, by = "COD_DANE_A")
+df_crime_geo <- df_crime_geo %>%
+  pivot_longer(cols = c(hom2012:hmot2019),
+               names_to = "crime_year",
+               values_to = "crime_count") %>%
+  separate(col = crime_year,
+           into = c("crime_type", "crime_year"),
+           sep = "20") %>%
+  mutate(crime_year = as.numeric(crime_year) + 2000,
+         crime_type = case_when(crime_type == "hom" ~ "homicide",
+                                crime_type == "hper" ~ "robbery",
+                                crime_type == "hveh" ~ "motor vehicle theft",
+                                crime_type == "hmot" ~ "motorcycle theft",
+                                TRUE ~ as.character(crime_type)))
