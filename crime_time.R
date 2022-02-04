@@ -57,6 +57,4 @@ df_vtheft19 <- df_vtheft19_raw %>%
 df_crime19 <- rbind(df_homicides19, df_theft19, df_burglary19, df_vtheft19)
 
 
-ggplot() +
-  #geom_sf(data = quadrants) #+
-  geom_sf(data = df_homicides19)
+
