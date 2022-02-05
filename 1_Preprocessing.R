@@ -1,5 +1,6 @@
 # Set Environment####
 ## set wd and path####
+
 #setwd("E:/Files/HaHaHariss/22Winter/Policy Lab/Police Reform Policy Lab/G2 -Patrolling strategies and complementary social interventions")
 #PATH <- "E:/Files/HaHaHariss/22Winter/Policy Lab"
 
@@ -31,11 +32,11 @@ library(expss)
 
 # Read Data ####
 
-## crime data ####
+## crime data 2012-2019 by block ####
 df_crime <- read_xlsx(file.path(PATH, "Data_Manzana_MDE.xlsx"))[, c(4, 37:68)]
 
-## shape file ####
-#df_shp <- st_read(file.path(PATH, "MGN_ANM_MANZANA.shp"))
+## shape file with demographics ####
+#df_shp <- st_read(file.path(PATH, "MGN_ANM_MANZANA.shp"))  # this is the big shapefile to make better maps
 df_shp <- st_read(file.path(PATH, "manzanas_MEVAL.shp"))[, 1:106]
 
 # Clean Data ####
@@ -67,9 +68,9 @@ add_labels <- function(df, dict_filename, path = PATH){
 df_shp <- add_labels(df_shp, "shapefile_labels.csv")
 df_crime <- add_labels(df_crime,'crime_labels.csv')
 
-## merge data####
-
-# drop useless cols
+## merge crime and demographic data ####
+# pick useful cols - chosen previously and kept in selected_data_dictionary.xlsx
+# useful variables include socioeconomic data, education, and other demographics
 select_cols <- function(df, dict_filename, path = PATH){
   dict_colname <- read_excel(file.path(path, dict_filename))
   df <- df[, dict_colname$Variable]
@@ -80,7 +81,7 @@ df_shp <- select_cols(df_shp,'Selected data dictionary.xlsx')
 colnames(df_crime)[1] <- colnames(df_shp)[1]
 
 # df with all important socio-demographic info and crime, by block, geocoded
-df_main <- merge(df_shp, df_crime, by = colnames(df_shp)[1])
+df_main <- left_join(df_shp, df_crime, by = colnames(df_shp)[1])
 
 # df with only crime info, by block, geocoded
 df_crime_geo <- merge(df_shp %>% select(COD_DANE_A, geometry), df_crime, by = "COD_DANE_A")
