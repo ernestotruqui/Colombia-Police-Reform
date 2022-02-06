@@ -84,20 +84,22 @@ p2p <- function(df_crime,df_shp){
 }
 
 # Clean Data
-df_shp <- clean_shp(st_read(file.path(PATH,'07_Cuadrantes')))
-df_crime19 <- p2p(df_crime19,df_shp)
+# fix inconsistency --------------------------------------------------------------------------------------------------------
+#df_shp <- clean_shp(st_read(file.path(PATH, '07_Cuadrantes')))
+#df_shp <- clean_shp(st_read(file.path(PATH, 'CIEPS_MEVAL.shp')))
+df_crime19 <- p2p(df_crime19, df_shp)
 
 # Summarise to Quadrants Shift Level ####
-change_to_shift <- function(df_crime,shp = df_shp){
-  df_quad <- data.frame(NRO_CUADRA = rep(shp$NRO_CUADRA,3),
-                        shift = rep(c("21-5","6-13","13-21"),each = 286))
-  df_temp <- df_crime %>% group_by(NRO_CUADRA,shift) %>% 
+change_to_shift <- function(df_crime, shp = df_shp){
+  df_quad <- data.frame(NRO_CUADRA = rep(shp$NRO_CUADRA, 3),
+                        shift = rep(c("21-5", "5-13", "13-21"), each = 286))
+  df_temp <- df_crime %>% group_by(NRO_CUADRA ,shift) %>% 
     summarise(homocide = sum(crime_type == 'homocide'),
               theft = sum(crime_type == 'theft'),
               vehicle_theft= sum(crime_type == 'vehicle theft'),
               burglary = sum(crime_type == 'burglary'),
               sum = n())
-  df_quad <- merge(df_quad,df_temp,by=c('NRO_CUADRA','shift'),all.x=T)
+  df_quad <- merge(df_quad, df_temp, by = c('NRO_CUADRA','shift'), all.x = T)
   df_quad[is.na(df_quad)] <- 0
   return(df_quad)
 }
