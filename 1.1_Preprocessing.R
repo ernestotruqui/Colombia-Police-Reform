@@ -1,6 +1,8 @@
 # Set Environment####
 ## set wd and path####
-PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
+
+#PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
+PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data" 
 
 ## load libraries####
 library(readxl)
@@ -17,8 +19,8 @@ clean_crime_data <- function(df_crime){
   return(df_crime)
 }
 
-read_crime_data <- function(fname,sname,path=PATH){
-  df <- read_xlsx(file.path(PATH, fname),sheet = sname)
+read_crime_data <- function(fname, sname, path = PATH){
+  df <- read_xlsx(file.path(PATH, fname), sheet = sname)
   if ('cod_dane' %in% colnames(df)) {
     df <- filter(df,as.numeric(cod_dane) == 5001000)
     df <- mutate(df,time = as.numeric(hour(time)))
@@ -32,8 +34,8 @@ read_crime_data <- function(fname,sname,path=PATH){
     select(c(crime_type, date, time, geometry))  
 }
 
-merge_crime_data <- function(fname,path=PATH){
-  names <- excel_sheets(file.path(path,fname))[c(2,3,4,5)]
+merge_crime_data <- function(fname, path = PATH){
+  names <- excel_sheets(file.path(path, fname))[c(2,3,4,5)]
   df <- data.frame(matrix(nrow = 0, ncol = 4))
   colnames(df) <- c('crime_type', 'date', 'time', 'geometry')
   for (name in names) {
@@ -45,8 +47,8 @@ merge_crime_data <- function(fname,path=PATH){
   df$crime_type[df$crime_type %in% names] <- crime_types[match(df$crime_type, names, nomatch = 0)]
   
   # turn time into shifts
-  df$shift <- ifelse(df$time %in% c(6,7,8,9,10,11,12,13),'6-13',
-                             ifelse(df$time %in% c(14,15,16,17,18,19,20,21),
+  df$shift <- ifelse(df$time %in% c(5,6,7,8,9,10,11,12),'5-13',
+                             ifelse(df$time %in% c(13,14,15,16,17,18,19,20),
                                     '13-21','21-5'))
   return(df)
 }
