@@ -84,7 +84,7 @@ colnames(df_crime)[1] <- colnames(df_shp)[1]
 df_main <- left_join(df_shp, df_crime, by = colnames(df_shp)[1])
 
 # df with only crime info, by block, geocoded
-df_crime_geo <- merge(df_shp %>% select(COD_DANE_A, geometry), df_crime, by = "COD_DANE_A")
+df_crime_geo <- left_join(df_shp %>% select(COD_DANE_A, geometry), df_crime, by = "COD_DANE_A")
 df_crime_geo <- df_crime_geo %>%
   pivot_longer(cols = c(hom2012:hmot2019),
                names_to = "crime_year",
