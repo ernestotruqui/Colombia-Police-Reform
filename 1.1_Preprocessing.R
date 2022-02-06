@@ -93,7 +93,7 @@ df_crime19 <- p2p(df_crime19, df_shp)
 change_to_shift <- function(df_crime, shp = df_shp){
   df_quad <- data.frame(NRO_CUADRA = rep(shp$NRO_CUADRA, 3),
                         shift = rep(c("21-5", "5-13", "13-21"), each = 286))
-  df_temp <- df_crime %>% group_by(NRO_CUADRA ,shift) %>% 
+  df_temp <- df_crime %>% group_by(NRO_CUADRA, shift) %>% 
     summarise(homocide = sum(crime_type == 'homocide'),
               theft = sum(crime_type == 'theft'),
               vehicle_theft= sum(crime_type == 'vehicle theft'),
