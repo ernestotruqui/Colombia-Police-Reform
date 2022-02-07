@@ -84,7 +84,6 @@ p2p <- function(df_crime,df_shp){
 }
 
 # Clean Data
-# fix inconsistency --------------------------------------------------------------------------------------------------------
 df_shp <- clean_shp(st_read(file.path(PATH, '07_Cuadrantes')))
 df_crime19 <- p2p(df_crime19, df_shp)
 
@@ -121,6 +120,8 @@ p_homicide <- p_count_crime(df_shift, 'homicide')
 p_sum <- p_count_crime(df_shift,'sum')
 
 ggplot() +
-  geom_sf(data = df_shift %>% filter(shift == "5-13"))
-
+  geom_sf(data = df_shift %>% filter(shift == "5-13"),
+          aes(fill = sum))
+ggplot() +
+  geom_sf(data = df_shp)
           
