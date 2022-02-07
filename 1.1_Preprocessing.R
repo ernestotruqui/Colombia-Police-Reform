@@ -1,8 +1,8 @@
 # Set Environment####
 ## set wd and path####
 
-PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
-# PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data" 
+#PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
+ PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data" 
 
 ## load libraries####
 library(readxl)
@@ -108,7 +108,7 @@ change_to_shift <- function(df_crime, shp = df_shp){
 df_shift <- change_to_shift(df_crime19)
   
 
-# Visualization ####
+# Visualizations --------------------------------------------------------------------------------
 p_count_crime <- function(df, colname){
   p <- ggplot(st_drop_geometry(df), aes(x = st_drop_geometry(df)[,colname])) + 
     geom_histogram(binwidth = 1) +
@@ -118,19 +118,10 @@ p_count_crime <- function(df, colname){
   return(p)
 }
 
+#### Histograms - Crime distribution----------------------------------------------------
 
-# plot
-p_homicide <- p_count_crime(df_shift, 'homicide')
-p_sum <- p_count_crime(df_shift, 'sum')
-
-ggplot() +
-  geom_sf(data = df_shift[df_shift$shift=='5-13',])
-
-
-###############
-
-
-theme_update(plot.title = element_text(hjust = 0.5))
+#p_homicide <- p_count_crime(df_shift, 'homicide')
+#p_sum <- p_count_crime(df_shift, 'sum')
 
 hist_crimes <- ggplot(data = df_shift,
        aes(x = sum)) +
@@ -161,4 +152,4 @@ ggsave(filename = "hist_homicides.png",
        plot = hist_homicides,
        path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
 
-
+## Maps ----------------------------------------------------------------------------
