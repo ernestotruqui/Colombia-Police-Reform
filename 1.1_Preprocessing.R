@@ -14,19 +14,19 @@ library(tidyverse)
 
 # Pre-processing Crime Data ####
 clean_crime_data <- function(df_crime){
-  df_crime$lat <- str_replace(df_crime$lat,',','.')
-  df_crime$lon <- str_replace(df_crime$lon,',','.')
+  df_crime$lat <- str_replace(df_crime$lat, ',' , '.')
+  df_crime$lon <- str_replace(df_crime$lon, ',' , '.')
   return(df_crime)
 }
 
 read_crime_data <- function(fname, sname, path = PATH){
   df <- read_xlsx(file.path(PATH, fname), sheet = sname)
   if ('cod_dane' %in% colnames(df)) {
-    df <- filter(df,as.numeric(cod_dane) == 5001000)
-    df <- mutate(df,time = as.numeric(hour(time)))
+    df <- filter(df, as.numeric(cod_dane) == 5001000)
+    df <- mutate(df, time = as.numeric(hour(time)))
   }
   else {
-    df <- filter(df,zone == "05001000")   
+    df <- filter(df, zone == "05001000")   
   }
   df <- clean_crime_data(df) %>%
     mutate(crime_type = sname) %>%
@@ -39,11 +39,11 @@ merge_crime_data <- function(fname, path = PATH){
   df <- data.frame(matrix(nrow = 0, ncol = 4))
   colnames(df) <- c('crime_type', 'date', 'time', 'geometry')
   for (name in names) {
-    df_temp <- read_crime_data(fname,name)
-    df <- rbind(df,df_temp)
+    df_temp <- read_crime_data(fname, name)
+    df <- rbind(df, df_temp)
   }
   # rename crime types
-  crime_types <- c('vehicle theft','theft','homocide','burglary')
+  crime_types <- c('vehicle theft', 'theft', 'homicide', 'burglary')
   df$crime_type[df$crime_type %in% names] <- crime_types[match(df$crime_type, names, nomatch = 0)]
   
   # turn time into shifts
@@ -85,8 +85,7 @@ p2p <- function(df_crime,df_shp){
 
 # Clean Data
 # fix inconsistency --------------------------------------------------------------------------------------------------------
-#df_shp <- clean_shp(st_read(file.path(PATH, '07_Cuadrantes')))
-#df_shp <- clean_shp(st_read(file.path(PATH, 'CIEPS_MEVAL.shp')))
+df_shp <- clean_shp(st_read(file.path(PATH, '07_Cuadrantes')))
 df_crime19 <- p2p(df_crime19, df_shp)
 
 # Summarise to Quadrants Shift Level ####
@@ -94,7 +93,7 @@ change_to_shift <- function(df_crime, shp = df_shp){
   df_quad <- data.frame(NRO_CUADRA = rep(shp$NRO_CUADRA, 3),
                         shift = rep(c("21-5", "5-13", "13-21"), each = 286))
   df_temp <- df_crime %>% group_by(NRO_CUADRA, shift) %>% 
-    summarise(homocide = sum(crime_type == 'homocide'),
+    summarise(homicide = sum(crime_type == 'homicide'),
               theft = sum(crime_type == 'theft'),
               vehicle_theft= sum(crime_type == 'vehicle theft'),
               burglary = sum(crime_type == 'burglary'),
@@ -105,16 +104,23 @@ change_to_shift <- function(df_crime, shp = df_shp){
 }
 
 df_shift <- change_to_shift(df_crime19)
-
+df_shift <- df_shift %>%
+  st_as_sf()
+class(df_shift)
 # Visualization ####
-p_count_crime <- function(df,colname){
-  p <- ggplot(df,aes(x=df[,colname]))+ 
-    geom_histogram(binwidth=1) +
+p_count_crime <- function(df, colname){
+  p <- ggplot(df, aes(x = df[,colname])) + 
+    geom_histogram(binwidth = 1) +
     theme_classic() +
-    ggtitle(paste('Number of Crimes per Quad Shift(2019):',colname))
+    ggtitle(paste('Number of Crimes per Quad Shift(2019):', colname))
   print(p)
   return(p)
 }
 # plot
-p_homocide <- p_count_crime(df_shift,'homocide')
+p_homicide <- p_count_crime(df_shift, 'homicide')
 p_sum <- p_count_crime(df_shift,'sum')
+
+ggplot() +
+  geom_sf(data = df_shift %>% filter(shift == "5-13"))
+
+          
