@@ -11,6 +11,7 @@ library(ggplot2)
 library(dplyr)
 library(lubridate)
 library(tidyverse)
+library(ggeasy)
 
 # Pre-processing Crime Data ####
 clean_crime_data <- function(df_crime){
@@ -57,13 +58,13 @@ df_crime19 <- merge_crime_data('CrimesV2.xlsx')
 
 # Pre-processing Shapefile ####
 clean_shp <- function(df_shp){
-  df_shp <- df_shp[!substr(as.character(df_shp$NRO_CUADRA),13,13) %in% c('6','7'),]
+  df_shp <- df_shp[!substr(as.character(df_shp$NRO_CUADRA), 13, 13) %in% c('6', '7'),]
   return(df_shp)
 }
 
 p2p <- function(df_crime,df_shp){
-  pnts <- data.frame('x' = unlist(map(df_crime$geometry,1)),
-                     'y' = unlist(map(df_crime$geometry,2)))
+  pnts <- data.frame('x' = unlist(map(df_crime$geometry, 1)),
+                     'y' = unlist(map(df_crime$geometry, 2)))
   
   # create a points collection
   pnts_sf <- do.call("st_sfc",c(lapply(1:nrow(pnts), 
@@ -105,7 +106,8 @@ change_to_shift <- function(df_crime, shp = df_shp){
 }
 
 df_shift <- change_to_shift(df_crime19)
-
+df_shift <- st_as_sf(df_shift)
+  
 
 # Visualization ####
 p_count_crime <- function(df, colname){
@@ -116,10 +118,48 @@ p_count_crime <- function(df, colname){
   print(p)
   return(p)
 }
+
+
 # plot
 p_homicide <- p_count_crime(df_shift, 'homicide')
-p_sum <- p_count_crime(df_shift,'sum')
+p_sum <- p_count_crime(df_shift, 'sum')
 
 ggplot() +
   geom_sf(data = df_shift[df_shift$shift=='5-13',])
+
+
+###############
+
+
+theme_update(plot.title = element_text(hjust = 0.5))
+
+hist_crimes <- ggplot(data = df_shift,
+       aes(x = sum)) +
+  geom_histogram(binwidth = 5) +
+  labs(title = "Distribution of crimes per quadrant-shift (2019)",
+       x = "Total number of crimes",
+       y = "Count") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_x_continuous(breaks = seq(0, 300, 25)) +
+  annotate("text", label = c("286 quadrants", "    x 3 shifts", "= 858 quadrant-shifts"),
+           x = c(250, 250, 250), y = c(80, 76, 72))
+hist_crimes
+ggsave(filename = "hist_crimes.png",
+       plot = hist_crimes,
+       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+
+hist_homicides <- ggplot(data = df_shift,
+                         aes(x = homicide)) +
+  geom_histogram(binwidth = 1, color = "lightgrey") +
+  labs(title = "Distribution of homicides per quadrant-shift (2019)",
+       x = "Total number of homicides",
+       y = "Count") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  annotate("text", label = c("286 quadrants", "    x 3 shifts", "= 858 quadrant-shifts"),
+           x = c(7.5, 7.5, 7.5), y = c(500, 460, 420))
+hist_homicides
+ggsave(filename = "hist_homicides.png",
+       plot = hist_homicides,
+       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+
 
