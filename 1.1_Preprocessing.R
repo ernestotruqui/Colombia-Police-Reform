@@ -85,6 +85,7 @@ p2p <- function(df_crime,df_shp){
 }
 
 # Clean Data
+df_shp <- st_read(file.path(PATH, '07_Cuadrantes'))
 df_shp <- clean_shp(st_read(file.path(PATH, '07_Cuadrantes')))
 df_crime19 <- p2p(df_crime19, df_shp)
 
@@ -153,3 +154,11 @@ ggsave(filename = "hist_homicides.png",
        path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
 
 ## Maps ----------------------------------------------------------------------------
+
+map_crimes_quad_2019 <- ggplot() +
+  geom_sf(data = df_shift[df_shift$shift=='5-13',],
+          aes(fill = sum))
+map_crimes_quad_2019
+ggsave(filename = "map_crimes_quad_2019.png",
+       plot = map_crimes_quad_2019,
+       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
