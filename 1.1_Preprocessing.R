@@ -1,8 +1,8 @@
 # Set Environment####
 ## set wd and path####
 
-#PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
-PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data" 
+PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
+# PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data" 
 
 ## load libraries####
 library(readxl)
@@ -99,16 +99,17 @@ change_to_shift <- function(df_crime, shp = df_shp){
               sum = n())
   df_quad <- merge(df_quad, df_temp, by = c('NRO_CUADRA','shift'), all.x = T)
   df_quad[is.na(df_quad)] <- 0
+  df_quad <- merge(df_quad[,c(1:7)],shp[,c(2,13)], all = T)
+  df_quad <- st_as_sf(df_quad)
   return(df_quad)
 }
 
 df_shift <- change_to_shift(df_crime19)
-df_shift <- df_shift %>%
-  st_as_sf()
-class(df_shift)
+
+
 # Visualization ####
 p_count_crime <- function(df, colname){
-  p <- ggplot(df, aes(x = df[,colname])) + 
+  p <- ggplot(st_drop_geometry(df), aes(x = st_drop_geometry(df)[,colname])) + 
     geom_histogram(binwidth = 1) +
     theme_classic() +
     ggtitle(paste('Number of Crimes per Quad Shift(2019):', colname))
@@ -120,8 +121,5 @@ p_homicide <- p_count_crime(df_shift, 'homicide')
 p_sum <- p_count_crime(df_shift,'sum')
 
 ggplot() +
-  geom_sf(data = df_shift %>% filter(shift == "5-13"),
-          aes(fill = sum))
-ggplot() +
-  geom_sf(data = df_shp)
-          
+  geom_sf(data = df_shift[df_shift$shift=='5-13',])
+
