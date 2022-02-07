@@ -89,7 +89,7 @@ map_homicides <- ggplot() +
           aes(fill = hom2019, color = hom2019)) +
   scale_fill_viridis_c() +
   scale_color_viridis_c() +
-  theme_void() +
+  #theme_void() +
   labs(fill = "Number of homicides",
        color = "Number of homicides")
 map_homicides
