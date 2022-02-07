@@ -80,7 +80,22 @@ colnames(df_crime)[1] <- colnames(df_shp)[1]
 
 # merge
 df_main <- merge(df_shp, df_crime, by = colnames(df_shp)[1])
+df_main <- df_main %>%
+  mutate(total_homicides = hom2012 + hom2013 + hom2014 + hom2015 + hom2016 + hom2017 + hom2018 + hom2019)
 
+# Crime maps -------
+map_homicides <- ggplot() +
+  geom_sf(data = df_main,
+          aes(fill = hom2019, color = hom2019)) +
+  scale_fill_viridis_c() +
+  scale_color_viridis_c() +
+  theme_void() +
+  labs(fill = "Number of homicides",
+       color = "Number of homicides")
+map_homicides
+ggsave(filename = "map_homs_block_2019.png",
+       plot = map_homicides,
+       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
 # DEMOGRAPHIC DFs -----
 
 # Education -----
