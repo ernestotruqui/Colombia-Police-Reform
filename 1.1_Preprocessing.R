@@ -155,10 +155,41 @@ ggsave(filename = "hist_homicides.png",
 
 ## Maps ----------------------------------------------------------------------------
 
-map_crimes_quad_2019 <- ggplot() +
+map_crimes_quad_2019_morn <- ggplot() +
   geom_sf(data = df_shift[df_shift$shift=='5-13',],
-          aes(fill = sum))
-map_crimes_quad_2019
-ggsave(filename = "map_crimes_quad_2019.png",
-       plot = map_crimes_quad_2019,
+          aes(fill = sum)) +
+  labs(title = "Total number of crimes per quadrant",
+       subtitle = "Morning shift (5:00 - 13:00)") +
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5))
+map_crimes_quad_2019_morn
+ggsave(filename = "map_crimes_quad_2019_morn.png",
+       plot = map_crimes_quad_2019_morn,
        path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+
+map_crimes_quad_2019_aftn <- ggplot() +
+  geom_sf(data = df_shift[df_shift$shift=='13-21',],
+          aes(fill = sum)) +
+  labs(title = "Total number of crimes per quadrant",
+       subtitle = "Afternoon shift (13:00 - 21:00)") +
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5))
+map_crimes_quad_2019_aftn
+ggsave(filename = "map_crimes_quad_2019_aftn.png",
+       plot = map_crimes_quad_2019_aftn,
+       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+
+map_crimes_quad_2019_nght <- ggplot() +
+  geom_sf(data = df_shift[df_shift$shift=='21-5',],
+          aes(fill = sum)) +
+  labs(title = "Total number of crimes per quadrant",
+       subtitle = "Night shift (21:00 - 5:00)") +
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5))
+map_crimes_quad_2019_nght
+ggsave(filename = "map_crimes_quad_2019_nght.png",
+       plot = map_crimes_quad_2019_nght,
+       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+plot_grid(map_crimes_quad_2019_morn, map_crimes_quad_2019_aftn, map_crimes_quad_2019_nght,
+          labels = c("Morning Shift", "Afternoon Shift", "Night Shift"),
+          ncol = 3)
