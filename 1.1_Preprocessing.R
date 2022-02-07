@@ -106,7 +106,6 @@ change_to_shift <- function(df_crime, shp = df_shp){
 }
 
 df_shift <- change_to_shift(df_crime19)
-df_shift <- st_as_sf(df_shift)
   
 
 # Visualization ####
