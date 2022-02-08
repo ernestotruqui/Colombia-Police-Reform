@@ -130,10 +130,12 @@ hist_crimes <- ggplot(data = df_shift,
   labs(title = "Distribution of crimes per quadrant-shift (2019)",
        x = "Total number of crimes",
        y = "Count") +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  scale_x_continuous(breaks = seq(0, 300, 25)) +
-  annotate("text", label = c("286 quadrants", "    x 3 shifts", "= 858 quadrant-shifts"),
-           x = c(250, 250, 250), y = c(80, 76, 72))
+  theme(plot.title = element_text(hjust = 0.5,
+                                  size = 20),
+        axis.title = element_text(size = 16)) +
+  scale_x_continuous(breaks = seq(0, 300, 25)) #+
+  #annotate("text", label = c("286 quadrants", "    x 3 shifts", "= 858 quadrant-shifts"),
+   #        x = c(250, 250, 250), y = c(80, 76, 72))
 hist_crimes
 ggsave(filename = "hist_crimes.png",
        plot = hist_crimes,
@@ -152,6 +154,19 @@ hist_homicides
 ggsave(filename = "hist_homicides.png",
        plot = hist_homicides,
        path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+# table to export for data task
+table_crimes <- df_shift %>%
+  st_drop_geometry() %>%
+  group_by(shift) %>%
+  summarise(`Total homicides` = sum(homicide),
+            `Total car thefts` = sum(vehicle_theft),
+            `Total robberies` = sum(theft),
+            `Total burglaries` = sum(burglary),
+            `Total crimes` = sum(sum)) %>%
+  as.data.frame()
+write.csv(x = table_crimes,
+            file = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Midterm deliverables/.csv",
+            row.names = F)
 
 ## Maps ----------------------------------------------------------------------------
 
