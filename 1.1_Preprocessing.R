@@ -62,7 +62,7 @@ clean_shp <- function(df_shp){
   return(df_shp)
 }
 
-p2p <- function(df_crime,df_shp){
+p2p <- function(df_crime, df_shp){
   pnts <- data.frame('x' = unlist(map(df_crime$geometry, 1)),
                      'y' = unlist(map(df_crime$geometry, 2)))
   
