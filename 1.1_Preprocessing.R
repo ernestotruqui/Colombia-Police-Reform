@@ -214,3 +214,51 @@ ggsave(filename = "map_crimes_quad_2019_nght.png",
 plot_grid(map_crimes_quad_2019_morn, map_crimes_quad_2019_aftn, map_crimes_quad_2019_nght,
           labels = c("Morning Shift", "Afternoon Shift", "Night Shift"),
           ncol = 3)
+
+## modify df_shifts to calculate crimes per officer ------------
+df_shift <- df_shift %>%
+  mutate(officers_original = 2,
+         crimes_per_officer = sum/officers_original)
+
+## Maps of crimes per officer by quadrant
+
+map_crimes_officer_quad_2019_morn <- ggplot() +
+  geom_sf(data = df_shift[df_shift$shift=='5-13',],
+          aes(fill = crimes_per_officer)) +
+  labs(title = "Morning shift (5:00 - 13:00)",
+       fill = "Crimes per Officer",
+       color = "Crimes per Officer") +
+  theme(plot.title = element_text(hjust = 0.5, size = 25)) +
+  scale_fill_viridis_c(option = "inferno", limits = c(0, 162)) +
+  scale_color_viridis_c(option = "inferno", limits = c(0, 162)) 
+map_crimes_officer_quad_2019_morn
+ggsave(filename = "map_crimes_officer_quad_2019_morn.png",
+       plot = map_crimes_officer_quad_2019_morn,
+       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+map_crimes_officer_quad_2019_aftn <- ggplot() +
+  geom_sf(data = df_shift[df_shift$shift=='13-21',],
+          aes(fill = crimes_per_officer)) +
+  labs(title = "Afternoon shift (13:00 - 21:00)",
+       fill = "Crimes per Officer",
+       color = "Crimes per Officer") +
+  theme(plot.title = element_text(hjust = 0.5, size = 25)) +
+  scale_fill_viridis_c(option = "inferno", limits = c(0, 162)) +
+  scale_color_viridis_c(option = "inferno", limits = c(0, 162)) 
+map_crimes_officer_quad_2019_aftn
+ggsave(filename = "map_crimes_officer_quad_2019_aftn.png",
+       plot = map_crimes_officer_quad_2019_aftn,
+       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+map_crimes_officer_quad_2019_nght <- ggplot() +
+  geom_sf(data = df_shift[df_shift$shift=='21-5',],
+          aes(fill = crimes_per_officer)) +
+  labs(title = "Night shift (21:00 - 5:00)",
+       fill = "Crimes per Officer",
+       color = "Crimes per Officer") +
+  theme(plot.title = element_text(hjust = 0.5, size = 25)) +
+  scale_fill_viridis_c(option = "inferno", limits = c(0, 162)) +
+  scale_color_viridis_c(option = "inferno", limits = c(0, 162)) 
+map_crimes_officer_quad_2019_nght
+ggsave(filename = "map_crimes_officer_quad_2019_nght.png",
+       plot = map_crimes_officer_quad_2019_nght,
+       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+
