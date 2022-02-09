@@ -264,6 +264,14 @@ ggsave(filename = "map_crimes_officer_quad_2019_nght.png",
        path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
 
 ## Analysis - crimes per officer
-df_shift %>%
+crimes_p_officer <- df_shift %>%
+  st_drop_geometry() %>%
   group_by(shift) %>%
-  summarise(summary = mean(crimes_per_officer))
+  summarise(`Mean Crimes` = mean(crimes_per_officer),
+            `Median Crimes` = median(crimes_per_officer),
+            `Max Crimes` = max(crimes_per_officer),
+            `Min Crimes` = min(crimes_per_officer)) %>%
+  arrange(`Max Crimes`)
+write.csv(x = crimes_p_officer,
+          file = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform/crimes_p_officer.csv",
+          row.names = F)
