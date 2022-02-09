@@ -1,6 +1,6 @@
 # Set Environment####
-## set wd and path####
-
+## set path and options####
+options(scipen = 999)
 PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
 #PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data" 
 
@@ -15,7 +15,8 @@ library(lubridate)
 library(tidyverse)
 library(ggeasy)
 
-# Pre-processing Crime Data ####
+# Data Cleaning ####
+## Pre-processing Crime Data ####
 clean_crime_data <- function(df_crime){
   df_crime$lat <- str_replace(df_crime$lat, ',' , '.')
   df_crime$lon <- str_replace(df_crime$lon, ',' , '.')
@@ -56,11 +57,19 @@ merge_crime_data <- function(fname, path = PATH){
   return(df)
 }
 
+### run ####
 df_crime19 <- merge_crime_data('CrimesV2.xlsx')
 
-# Pre-processing Shapefile ####
+## Pre-processing Shapefile ####
 clean_shp <- function(df_shp){
   df_shp <- df_shp[!substr(as.character(df_shp$NRO_CUADRA), 13, 13) %in% c('6', '7'),]
+  colnames(df_shp)[which(names(df_shp) == "NRO_CUADRA")] <- 'region'
+  return(df_shp)
+}
+
+clean_shp_old <- function(df_shp){
+  df_shp <- df_shp[,'COD_DANE_A']
+  colnames(df_shp)[which(names(df_shp) == "COD_DANE_A")] <- 'region'
   return(df_shp)
 }
 
@@ -79,39 +88,45 @@ p2p <- function(df_crime, df_shp){
   
   pnts$region <- apply(st_intersects(tt1_trans, pnts_trans, sparse = FALSE), 2, 
                        function(col) { 
-                         tt1_trans[which(col), ]$NRO_CUADRA
+                         tt1_trans[which(col), ]$region
                        })
   
-  df_crime$NRO_CUADRA <- as.character(pnts$region)
+  df_crime$region <- as.character(pnts$region)
   return(df_crime)
 }
 
-# Clean Data
-df_shp <- st_read(file.path(PATH, '07_Cuadrantes'))
+### run ####
+
+# Get block level data
+# df_shp_old <- clean_shp_old(st_read(file.path(PATH, 'manzanas_MEVAL.shp')))
+# df_crime19_old <- p2p(df_crime19, df_shp_old)
+# df_crime19_old$region <- as.numeric(df_crime19_old$region)
+# df_crim19_old <- na.omit(df_crime19_old)
+
 df_shp <- clean_shp(st_read(file.path(PATH, '07_Cuadrantes')))
 df_crime19 <- p2p(df_crime19, df_shp)
 
-# Summarise to Quadrants Shift Level ####
+## Summarise to Quadrants Shift Level ####
 change_to_shift <- function(df_crime, shp = df_shp){
-  df_quad <- data.frame(NRO_CUADRA = rep(shp$NRO_CUADRA, 3),
-                        shift = rep(c("21-5", "5-13", "13-21"), each = 286))
-  df_temp <- df_crime %>% group_by(NRO_CUADRA, shift) %>% 
+  df_quad <- data.frame(region = rep(shp$region, 3),
+                        shift = rep(c("21-5", "5-13", "13-21"), each = nrow(shp)))
+  df_temp <- df_crime %>% group_by(region, shift) %>% 
     dplyr::summarize(homicide = sum(crime_type == 'homicide'),
               theft = sum(crime_type == 'theft'),
               vehicle_theft= sum(crime_type == 'vehicle theft'),
               burglary = sum(crime_type == 'burglary'),
               sum = n())
-  df_quad <- merge(df_quad, df_temp, by = c('NRO_CUADRA','shift'), all.x = T)
+  df_quad <- merge(df_quad, df_temp, by = c('region','shift'), all.x = T)
   df_quad[is.na(df_quad)] <- 0
   df_quad <- merge(df_quad[,c(1:7)],shp[,c(2,13)], all = T)
   df_quad <- st_as_sf(df_quad)
   return(df_quad)
 }
 
+### run ####
 df_shift <- change_to_shift(df_crime19)
-  
 
-#Redistribution####
+# Redistribution####
 ## redistribution algo####
 redistribute <- function(df,colname){
   df$temp <- (nrow(df) * st_drop_geometry(df)[,colname] / sum(st_drop_geometry(df)[,colname])) + 1
@@ -131,7 +146,7 @@ crime_per_police <- function(df,crime_type,n_of_police=''){
   return(df$temp)
 }
 
-## redistribute by crime per police####
+### run ####
 # number of police in the quad shift
 df_shift$n_of_police <- 2
 df_shift$rn_of_police <- redistribute(df_shift,'sum')
@@ -148,8 +163,8 @@ df_shift$rcpp <- crime_per_police(df_shift,'sum','rn_of_police')
 plot_cpp <- function(df,cpp,rcpp){
   # prepare df for plotting
   df <- st_drop_geometry(df)
-  df_temp <- as.data.frame(df[,c('NRO_CUADRA','shift',cpp,rcpp)])
-  df_long <- melt(df,id.vars=c("NRO_CUADRA","shift"),
+  df_temp <- as.data.frame(df[,c('region','shift',cpp,rcpp)])
+  df_long <- melt(df,id.vars=c("region","shift"),
                   measure.vars=c(cpp,rcpp),
                   variable.name="distribution",
                   value.name="crime_per_police")
@@ -171,7 +186,7 @@ plot_cpp <- function(df,cpp,rcpp){
 
 p_cpp <- plot_cpp(df_shift,'cpp','rcpp')
 
-### crime per quad shift
+### crime per quad shift ####
 
 hist_crimes <- ggplot(data = df_shift,
        aes(x = sum)) +
