@@ -221,7 +221,7 @@ df_shift <- df_shift %>%
          crimes_per_officer = sum/officers_original)
 
 
-## Maps of crimes per officer by quadrant
+## Maps of crimes per officer by quadrant --------------
 
 map_crimes_officer_quad_2019_morn <- ggplot() +
   geom_sf(data = df_shift[df_shift$shift=='5-13',],
@@ -263,3 +263,7 @@ ggsave(filename = "map_crimes_officer_quad_2019_nght.png",
        plot = map_crimes_officer_quad_2019_nght,
        path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
 
+## Analysis - crimes per officer
+df_shift %>%
+  group_by(shift) %>%
+  summarise(summary = mean(crimes_per_officer))
