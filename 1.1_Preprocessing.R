@@ -180,7 +180,9 @@ plot_cpp <- function(df, cpp, rcpp){
     geom_vline(data = group_mean, aes(xintercept = grp.mean, color = distribution),
                size = 1.25)+
     geom_density(alpha = .2)+
-    ggtitle('Crime Per Police: before and after redistribution')
+    ggtitle('Crime per officer: before and after redistribution') +
+    xlab(label = "Crimes per officer by quadrant-shift") +
+    theme(plot.title = element_text(hjust = 0.5, size = 15))
   #print(p)
   #return(p)
 }
@@ -223,8 +225,9 @@ ggsave(filename = "hist_crimes_p_officer.png",
 #  ggsave(filename = "hist_homicides.png",
 #         plot = hist_homicides,
 #         path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
-#  
-# table to export for data task
+# 
+
+# table to export for data task ------
 table_crimes <- df_shift %>%
   st_drop_geometry() %>%
   group_by(shift) %>%
@@ -285,17 +288,12 @@ plot_grid(map_crimes_quad_2019_morn, map_crimes_quad_2019_aftn, map_crimes_quad_
           labels = c("Morning Shift", "Afternoon Shift", "Night Shift"),
           ncol = 3)
 
-## modify df_shifts to calculate crimes per officer ------------
-df_shift <- df_shift %>%
-  mutate(officers_original = 2,
-         crimes_per_officer = sum/officers_original)
-
 
 ## Maps of crimes per officer by quadrant --------------
-
+## Status quo
 map_crimes_officer_quad_2019_morn <- ggplot() +
   geom_sf(data = df_shift[df_shift$shift=='5-13',],
-          aes(fill = crimes_per_officer)) +
+          aes(fill = cpp)) +
   labs(title = "Morning shift (5:00 - 13:00)",
        fill = "Crimes per Officer",
        color = "Crimes per Officer") +
@@ -308,7 +306,7 @@ ggsave(filename = "map_crimes_officer_quad_2019_morn.png",
        path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
 map_crimes_officer_quad_2019_aftn <- ggplot() +
   geom_sf(data = df_shift[df_shift$shift=='13-21',],
-          aes(fill = crimes_per_officer)) +
+          aes(fill = cpp)) +
   labs(title = "Afternoon shift (13:00 - 21:00)",
        fill = "Crimes per Officer",
        color = "Crimes per Officer") +
@@ -321,7 +319,7 @@ ggsave(filename = "map_crimes_officer_quad_2019_aftn.png",
        path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
 map_crimes_officer_quad_2019_nght <- ggplot() +
   geom_sf(data = df_shift[df_shift$shift=='21-5',],
-          aes(fill = crimes_per_officer)) +
+          aes(fill = cpp)) +
   labs(title = "Night shift (21:00 - 5:00)",
        fill = "Crimes per Officer",
        color = "Crimes per Officer") +
@@ -333,15 +331,67 @@ ggsave(filename = "map_crimes_officer_quad_2019_nght.png",
        plot = map_crimes_officer_quad_2019_nght,
        path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
 
-## Analysis - crimes per officer
+## Redistributed
+map_redis_crimes_officer_quad_2019_morn <- ggplot() +
+  geom_sf(data = df_shift[df_shift$shift=='5-13',],
+          aes(fill = rcpp)) +
+  labs(title = "Morning shift (5:00 - 13:00)",
+       fill = "Crimes per Officer",
+       color = "Crimes per Officer") +
+  theme(plot.title = element_text(hjust = 0.5, size = 25)) +
+  scale_fill_viridis_c(option = "inferno", limits = c(0, 162)) +
+  scale_color_viridis_c(option = "inferno", limits = c(0, 162)) 
+map_redis_crimes_officer_quad_2019_morn
+ggsave(filename = "map_redis_crimes_officer_quad_2019_morn.png",
+       plot = map_redis_crimes_officer_quad_2019_morn,
+       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+map_redis_crimes_officer_quad_2019_aftn <- ggplot() +
+  geom_sf(data = df_shift[df_shift$shift=='13-21',],
+          aes(fill = rcpp)) +
+  labs(title = "Afternoon shift (13:00 - 21:00)",
+       fill = "Crimes per Officer",
+       color = "Crimes per Officer") +
+  theme(plot.title = element_text(hjust = 0.5, size = 25)) +
+  scale_fill_viridis_c(option = "inferno", limits = c(0, 162)) +
+  scale_color_viridis_c(option = "inferno", limits = c(0, 162)) 
+map_redis_crimes_officer_quad_2019_aftn
+ggsave(filename = "map_redis_crimes_officer_quad_2019_aftn.png",
+       plot = map_redis_crimes_officer_quad_2019_aftn,
+       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+map_redis_crimes_officer_quad_2019_nght <- ggplot() +
+  geom_sf(data = df_shift[df_shift$shift=='21-5',],
+          aes(fill = rcpp)) +
+  labs(title = "Night shift (21:00 - 5:00)",
+       fill = "Crimes per Officer",
+       color = "Crimes per Officer") +
+  theme(plot.title = element_text(hjust = 0.5, size = 25)) +
+  scale_fill_viridis_c(option = "inferno", limits = c(0, 162)) +
+  scale_color_viridis_c(option = "inferno", limits = c(0, 162)) 
+map_redis_crimes_officer_quad_2019_nght
+ggsave(filename = "map_redis_crimes_officer_quad_2019_nght.png",
+       plot = map_redis_crimes_officer_quad_2019_nght,
+       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+
+
+## Analysis - crimes per officer ----------
 crimes_p_officer <- df_shift %>%
   st_drop_geometry() %>%
   group_by(shift) %>%
-  summarise(`Mean Crimes` = mean(crimes_per_officer),
-            `Median Crimes` = median(crimes_per_officer),
-            `Max Crimes` = max(crimes_per_officer),
-            `Min Crimes` = min(crimes_per_officer)) %>%
+  summarise(`Mean Crimes` = mean(cpp),
+            `Median Crimes` = median(cpp),
+            `Max Crimes` = max(cpp),
+            `Min Crimes` = min(cpp)) %>%
   arrange(`Max Crimes`)
 write.csv(x = crimes_p_officer,
           file = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform/crimes_p_officer.csv",
+          row.names = F)
+crimes_p_officer_redis <- df_shift %>%
+  st_drop_geometry() %>%
+  group_by(shift) %>%
+  dplyr::summarise(`Mean Crimes` = mean(rcpp),
+            `Median Crimes` = median(rcpp),
+            `Max Crimes` = max(rcpp),
+            `Min Crimes` = min(rcpp))
+write.csv(x = crimes_p_officer_redis,
+          file = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform/crimes_p_officer_redis.csv",
           row.names = F)
