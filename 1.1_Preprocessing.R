@@ -219,8 +219,7 @@ plot_grid(map_crimes_quad_2019_morn, map_crimes_quad_2019_aftn, map_crimes_quad_
 df_shift <- df_shift %>%
   mutate(officers_original = 2,
          crimes_per_officer = sum/officers_original)
-df_shp_block <- st_read(file.path(PATH, "manzanas_MEVAL.shp"))[, 1:106]
-df_crime19_block <- p2p(df_crime19, df_shp)
+
 
 ## Maps of crimes per officer by quadrant
 
