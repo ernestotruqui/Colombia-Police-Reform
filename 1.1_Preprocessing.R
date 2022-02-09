@@ -173,10 +173,12 @@ write.csv(x = table_crimes,
 map_crimes_quad_2019_morn <- ggplot() +
   geom_sf(data = df_shift[df_shift$shift=='5-13',],
           aes(fill = sum)) +
-  labs(title = "Total number of crimes per quadrant",
-       subtitle = "Morning shift (5:00 - 13:00)") +
-  theme(plot.title = element_text(hjust = 0.5),
-        plot.subtitle = element_text(hjust = 0.5))
+  labs(title = "Morning shift (5:00 - 13:00)",
+       fill = "Crimes",
+       color = "Crimes") +
+  theme(plot.title = element_text(hjust = 0.5, size = 25)) +
+  scale_fill_viridis_c(option = "inferno", limits = c(0, 300)) +
+  scale_color_viridis_c(option = "inferno", limits = c(0, 300)) 
 map_crimes_quad_2019_morn
 ggsave(filename = "map_crimes_quad_2019_morn.png",
        plot = map_crimes_quad_2019_morn,
@@ -185,10 +187,12 @@ ggsave(filename = "map_crimes_quad_2019_morn.png",
 map_crimes_quad_2019_aftn <- ggplot() +
   geom_sf(data = df_shift[df_shift$shift=='13-21',],
           aes(fill = sum)) +
-  labs(title = "Total number of crimes per quadrant",
-       subtitle = "Afternoon shift (13:00 - 21:00)") +
-  theme(plot.title = element_text(hjust = 0.5),
-        plot.subtitle = element_text(hjust = 0.5))
+  labs(title = "Afternoon shift (13:00 - 21:00)",
+       fill = "Crimes",
+       color = "Crimes") +
+  theme(plot.title = element_text(hjust = 0.5, size = 25)) +
+  scale_fill_viridis_c(option = "inferno", limits = c(0, 300)) +
+  scale_color_viridis_c(option = "inferno", limits = c(0, 300)) 
 map_crimes_quad_2019_aftn
 ggsave(filename = "map_crimes_quad_2019_aftn.png",
        plot = map_crimes_quad_2019_aftn,
@@ -197,10 +201,12 @@ ggsave(filename = "map_crimes_quad_2019_aftn.png",
 map_crimes_quad_2019_nght <- ggplot() +
   geom_sf(data = df_shift[df_shift$shift=='21-5',],
           aes(fill = sum)) +
-  labs(title = "Total number of crimes per quadrant",
-       subtitle = "Night shift (21:00 - 5:00)") +
-  theme(plot.title = element_text(hjust = 0.5),
-        plot.subtitle = element_text(hjust = 0.5))
+  labs(title = "Night shift (21:00 - 5:00)",
+       fill = "Crimes",
+       color = "Crimes") +
+  theme(plot.title = element_text(hjust = 0.5, size = 25)) +
+  scale_fill_viridis_c(option = "inferno", limits = c(0, 300)) +
+  scale_color_viridis_c(option = "inferno", limits = c(0, 300)) 
 map_crimes_quad_2019_nght
 ggsave(filename = "map_crimes_quad_2019_nght.png",
        plot = map_crimes_quad_2019_nght,
