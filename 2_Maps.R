@@ -81,10 +81,15 @@ colnames(df_crime)[1] <- colnames(df_shp)[1]
 # merge
 df_main <- merge(df_shp, df_crime, by = colnames(df_shp)[1])
 df_main <- df_main %>%
-  mutate(total_homicides = hom2012 + hom2013 + hom2014 + hom2015 + hom2016 + hom2017 + hom2018 + hom2019)
+  mutate(total_homicides = hom2012 + hom2013 + hom2014 + hom2015 + hom2016 + hom2017 + hom2018 + hom2019,
+         total_crimes_2019 = hom2019 + hmot2019 + hveh2019 + hper2019,
+         total_crimes_2018 = hom2018 + hmot2018 + hveh2018 + hper2018,
+         total_crimes_2017 = hom2017 + hmot2017 + hveh2017 + hper2017,
+         total_crimes_2016 = hom2016 + hmot2016 + hveh2016 + hper2016,
+         total_crimes_2015 = hom2015 + hmot2015 + hveh2015 + hper2015)
 
 # Crime maps -------
-map_homicides <- ggplot() +
+map_homicides_2019 <- ggplot() +
   geom_sf(data = df_main,
           aes(fill = hom2019, color = hom2019)) +
   scale_fill_viridis_c() +
@@ -92,10 +97,81 @@ map_homicides <- ggplot() +
   #theme_void() +
   labs(fill = "Number of homicides",
        color = "Number of homicides")
-map_homicides
+map_homicides_2019
 ggsave(filename = "map_homs_block_2019.png",
-       plot = map_homicides,
+       plot = map_homicides_2019,
        path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+
+map_total_homicides <- ggplot() +
+  geom_sf(data = df_main,
+          aes(fill = total_homicides, color = total_homicides)) +
+  scale_fill_viridis_c() +
+  scale_color_viridis_c() +
+  labs(fill = "Number of homicides",
+       color = "Number of homicides") +
+  ylim(min = 6.17, max = 6.32) +
+  xlim(min = -75.67, max = -75.48)
+map_total_homicides
+ggsave(filename = "map_homs_block_2012_19.png",
+       plot = map_total_homicides,
+       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+
+for (year in c(2015:2019)) {
+  map_total_crimes_year <- ggplot() +
+    geom_sf(data = df_main,
+            aes_string(fill = total_crimes_year, color = total_crimes_year)) +
+    scale_fill_viridis_c() +
+    scale_color_viridis_c() +
+    labs(fill = "Number of crimes",
+         color = "Number of crimes") +
+    ylim(min = 6.17, max = 6.32) +
+    xlim(min = -75.67, max = -75.48)
+  ggsave(filename = "map_total_crimes_year.png",
+         plot = map_total_crimes_year,
+         path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+}
+
+map_total_crimes_2019 <- ggplot() +
+  geom_sf(data = df_main,
+          aes(fill = total_crimes_2019, color = total_crimes_2019)) +
+  scale_fill_viridis_c() +
+  scale_color_viridis_c() +
+  labs(fill = "Number of crimes",
+       color = "Number of crimes") +
+  ylim(min = 6.17, max = 6.32) +
+  xlim(min = -75.67, max = -75.48)
+map_total_crimes_2019
+ggsave(filename = "map_total_crimes_2019.png",
+       plot = map_total_crimes_2019,
+       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+map_total_crimes_2018 <- ggplot() +
+  geom_sf(data = df_main,
+          aes(fill = total_crimes_2018, color = total_crimes_2018)) +
+  scale_fill_viridis_c(limits = c(0, 16)) +
+  scale_color_viridis_c(limits = c(0, 16)) +
+  labs(fill = "Number of crimes",
+       color = "Number of crimes") +
+  ylim(min = 6.17, max = 6.32) +
+  xlim(min = -75.67, max = -75.48)
+map_total_crimes_2018
+ggsave(filename = "map_total_crimes_2018.png",
+       plot = map_total_crimes_2018,
+       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+map_total_crimes_2017 <- ggplot() +
+  geom_sf(data = df_main,
+          aes(fill = total_crimes_2017, color = total_crimes_2017)) +
+  scale_fill_viridis_c() +
+  scale_color_viridis_c() +
+  labs(fill = "Number of crimes",
+       color = "Number of crimes") +
+  ylim(min = 6.17, max = 6.32) +
+  xlim(min = -75.67, max = -75.48)
+map_total_crimes_2017
+ggsave(filename = "map_total_crimes_2017.png",
+       plot = map_total_crimes_2017,
+       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+
+
 # DEMOGRAPHIC DFs -----
 
 # Education -----
