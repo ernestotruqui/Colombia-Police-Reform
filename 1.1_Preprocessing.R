@@ -1,13 +1,15 @@
 # Set Environment####
 ## set wd and path####
 
-#PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
- PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data" 
+PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
+#PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data" 
 
 ## load libraries####
 library(readxl)
 library(sf)
 library(ggplot2)
+library(reshape2)
+library(plyr)
 library(dplyr)
 library(lubridate)
 library(tidyverse)
@@ -94,7 +96,7 @@ change_to_shift <- function(df_crime, shp = df_shp){
   df_quad <- data.frame(NRO_CUADRA = rep(shp$NRO_CUADRA, 3),
                         shift = rep(c("21-5", "5-13", "13-21"), each = 286))
   df_temp <- df_crime %>% group_by(NRO_CUADRA, shift) %>% 
-    summarise(homicide = sum(crime_type == 'homicide'),
+    dplyr::summarize(homicide = sum(crime_type == 'homicide'),
               theft = sum(crime_type == 'theft'),
               vehicle_theft= sum(crime_type == 'vehicle theft'),
               burglary = sum(crime_type == 'burglary'),
@@ -109,20 +111,67 @@ change_to_shift <- function(df_crime, shp = df_shp){
 df_shift <- change_to_shift(df_crime19)
   
 
-# Visualizations --------------------------------------------------------------------------------
-p_count_crime <- function(df, colname){
-  p <- ggplot(st_drop_geometry(df), aes(x = st_drop_geometry(df)[,colname])) + 
-    geom_histogram(binwidth = 1) +
-    theme_classic() +
-    ggtitle(paste('Number of Crimes per Quad Shift(2019):', colname))
+#Redistribution####
+## redistribution algo####
+redistribute <- function(df,colname){
+  df$temp <- (nrow(df) * st_drop_geometry(df)[,colname] / sum(st_drop_geometry(df)[,colname])) + 1
+  df$temp <- round(df$temp)
+  #colnames(df)[which(names(df) == "temp")] <- paste('rn_', colname, sep = '')
+  return(df$temp)
+  }
+
+crime_per_police <- function(df,crime_type,n_of_police=''){
+  df <- st_drop_geometry(df)
+  if (n_of_police == '') {
+    df$temp <- df[,crime_type] / 2
+  }
+  else {
+    df$temp <- df[,crime_type] / df[,n_of_police]
+  }
+  return(df$temp)
+}
+
+## redistribute by crime per police####
+# number of police in the quad shift
+df_shift$n_of_police <- 2
+df_shift$rn_of_police <- redistribute(df_shift,'sum')
+
+# number of crimes per police
+df_shift$cpp <- crime_per_police(df_shift,'sum')
+df_shift$rcpp <- crime_per_police(df_shift,'sum','rn_of_police')
+
+# Visualizations ####
+
+## Histograms ####
+
+### crime per police ####
+plot_cpp <- function(df,cpp,rcpp){
+  # prepare df for plotting
+  df <- st_drop_geometry(df)
+  df_temp <- as.data.frame(df[,c('NRO_CUADRA','shift',cpp,rcpp)])
+  df_long <- melt(df,id.vars=c("NRO_CUADRA","shift"),
+                  measure.vars=c(cpp,rcpp),
+                  variable.name="distribution",
+                  value.name="crime_per_police")
+  levels(df_long$distribution) <- c('before','after')
+  group_mean <- ddply(df_long, "distribution", summarise, 
+                      grp.mean=mean(crime_per_police))
+  
+  
+  # plot
+  p <- ggplot(df_long, aes(x=crime_per_police, color=distribution, fill=distribution)) +
+    geom_histogram(aes(y=..density..), alpha=0.05,position="identity",binwidth = 1)+
+    geom_vline(data = group_mean, aes(xintercept=grp.mean, color=distribution),
+               size=1.25)+
+    geom_density(alpha=.2)+
+    ggtitle('Crime Per Police: before and after redistribution')
   print(p)
   return(p)
 }
 
-#### Histograms - Crime distribution----------------------------------------------------
+p_cpp <- plot_cpp(df_shift,'cpp','rcpp')
 
-#p_homicide <- p_count_crime(df_shift, 'homicide')
-#p_sum <- p_count_crime(df_shift, 'sum')
+### crime per quad shift
 
 hist_crimes <- ggplot(data = df_shift,
        aes(x = sum)) +
