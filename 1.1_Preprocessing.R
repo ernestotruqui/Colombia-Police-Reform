@@ -1,13 +1,14 @@
 # Set Environment####
 ## set path and options####
 options(scipen = 999)
-PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
-#PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data" 
+#PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
+PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data" 
 
 ## load libraries####
 library(readxl)
 library(sf)
 library(ggplot2)
+#install.packages("reshape2")
 library(reshape2)
 library(plyr)
 library(dplyr)
@@ -78,7 +79,7 @@ p2p <- function(df_crime, df_shp){
                      'y' = unlist(map(df_crime$geometry, 2)))
   
   # create a points collection
-  pnts_sf <- do.call("st_sfc",c(lapply(1:nrow(pnts), 
+  pnts_sf <- do.call("st_sfc", c(lapply(1:nrow(pnts), 
                                        function(i) {st_point(as.numeric(pnts[i, ]))}), list("crs" = 4326))) 
   
   # apply transformation to pnts sf
@@ -128,14 +129,14 @@ df_shift <- change_to_shift(df_crime19)
 
 # Redistribution####
 ## redistribution algo####
-redistribute <- function(df,colname){
+redistribute <- function(df, colname){
   df$temp <- (nrow(df) * st_drop_geometry(df)[,colname] / sum(st_drop_geometry(df)[,colname])) + 1
   df$temp <- round(df$temp)
   #colnames(df)[which(names(df) == "temp")] <- paste('rn_', colname, sep = '')
   return(df$temp)
   }
 
-crime_per_police <- function(df,crime_type,n_of_police=''){
+crime_per_police <- function(df, crime_type, n_of_police = ''){
   df <- st_drop_geometry(df)
   if (n_of_police == '') {
     df$temp <- df[,crime_type] / 2
@@ -152,21 +153,21 @@ df_shift$n_of_police <- 2
 df_shift$rn_of_police <- redistribute(df_shift,'sum')
 
 # number of crimes per police
-df_shift$cpp <- crime_per_police(df_shift,'sum')
-df_shift$rcpp <- crime_per_police(df_shift,'sum','rn_of_police')
+df_shift$cpp <- crime_per_police(df_shift, 'sum')
+df_shift$rcpp <- crime_per_police(df_shift, 'sum', 'rn_of_police')
 
 # Visualizations ####
 
 ## Histograms ####
 
 ### crime per police ####
-plot_cpp <- function(df,cpp,rcpp){
+plot_cpp <- function(df, cpp, rcpp){
   # prepare df for plotting
   df <- st_drop_geometry(df)
-  df_temp <- as.data.frame(df[,c('region','shift',cpp,rcpp)])
-  df_long <- melt(df,id.vars=c("region","shift"),
-                  measure.vars=c(cpp,rcpp),
-                  variable.name="distribution",
+  df_temp <- as.data.frame(df[,c('region', 'shift', cpp, rcpp)])
+  df_long <- melt(df,id.vars=c("region", "shift"),
+                  measure.vars=c(cpp, rcpp),
+                  variable.name = "distribution",
                   value.name="crime_per_police")
   levels(df_long$distribution) <- c('before','after')
   group_mean <- ddply(df_long, "distribution", summarise, 
@@ -174,50 +175,55 @@ plot_cpp <- function(df,cpp,rcpp){
   
   
   # plot
-  p <- ggplot(df_long, aes(x=crime_per_police, color=distribution, fill=distribution)) +
-    geom_histogram(aes(y=..density..), alpha=0.05,position="identity",binwidth = 1)+
-    geom_vline(data = group_mean, aes(xintercept=grp.mean, color=distribution),
-               size=1.25)+
-    geom_density(alpha=.2)+
+  p <- ggplot(df_long, aes(x=crime_per_police, color=distribution, fill = distribution)) +
+    geom_histogram(aes(y=..density..), alpha = 0.05, position = "identity", binwidth = 1)+
+    geom_vline(data = group_mean, aes(xintercept = grp.mean, color = distribution),
+               size = 1.25)+
+    geom_density(alpha = .2)+
     ggtitle('Crime Per Police: before and after redistribution')
-  print(p)
-  return(p)
+  #print(p)
+  #return(p)
 }
+p_cpp <- plot_cpp(df_shift, 'cpp', 'rcpp')
+p_cpp
+ggsave(filename = "hist_crimes_p_officer.png",
+       plot = p_cpp,
+       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
 
-p_cpp <- plot_cpp(df_shift,'cpp','rcpp')
 
 ### crime per quad shift ####
-
-hist_crimes <- ggplot(data = df_shift,
-       aes(x = sum)) +
-  geom_histogram(binwidth = 5) +
-  labs(title = "Distribution of crimes per quadrant-shift (2019)",
-       x = "Total number of crimes",
-       y = "Count") +
-  theme(plot.title = element_text(hjust = 0.5,
-                                  size = 20),
-        axis.title = element_text(size = 16)) +
-  scale_x_continuous(breaks = seq(0, 300, 25)) #+
-  #annotate("text", label = c("286 quadrants", "    x 3 shifts", "= 858 quadrant-shifts"),
-   #        x = c(250, 250, 250), y = c(80, 76, 72))
-hist_crimes
-ggsave(filename = "hist_crimes.png",
-       plot = hist_crimes,
-       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
-
-hist_homicides <- ggplot(data = df_shift,
-                         aes(x = homicide)) +
-  geom_histogram(binwidth = 1, color = "lightgrey") +
-  labs(title = "Distribution of homicides per quadrant-shift (2019)",
-       x = "Total number of homicides",
-       y = "Count") +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  annotate("text", label = c("286 quadrants", "    x 3 shifts", "= 858 quadrant-shifts"),
-           x = c(7.5, 7.5, 7.5), y = c(500, 460, 420))
-hist_homicides
-ggsave(filename = "hist_homicides.png",
-       plot = hist_homicides,
-       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+#  hist_crimes <- ggplot(data = df_shift,
+#         aes(x = sum,
+#             y = ..density..)) +
+#    geom_histogram(binwidth = 5) +
+#    labs(title = "Distribution of crimes per quadrant-shift (2019)",
+#         x = "Total number of crimes",
+#         y = "Density") +
+#    theme(plot.title = element_text(hjust = 0.5,
+#                                    size = 20),
+#          axis.title = element_text(size = 16)) +
+#    scale_x_continuous(breaks = seq(0, 300, 25)) #+
+#    #annotate("text", label = c("286 quadrants", "    x 3 shifts", "= 858 quadrant-shifts"),
+#     #        x = c(250, 250, 250), y = c(80, 76, 72))
+#  hist_crimes
+#  ggsave(filename = "hist_crimes.png",
+#         plot = hist_crimes,
+#         path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+#  
+#  hist_homicides <- ggplot(data = df_shift,
+#                           aes(x = homicide)) +
+#    geom_histogram(binwidth = 1, color = "lightgrey") +
+#    labs(title = "Distribution of homicides per quadrant-shift (2019)",
+#         x = "Total number of homicides",
+#         y = "Count") +
+#    theme(plot.title = element_text(hjust = 0.5)) +
+#    annotate("text", label = c("286 quadrants", "    x 3 shifts", "= 858 quadrant-shifts"),
+#             x = c(7.5, 7.5, 7.5), y = c(500, 460, 420))
+#  hist_homicides
+#  ggsave(filename = "hist_homicides.png",
+#         plot = hist_homicides,
+#         path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+#  
 # table to export for data task
 table_crimes <- df_shift %>%
   st_drop_geometry() %>%
