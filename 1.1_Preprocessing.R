@@ -150,7 +150,7 @@ crime_per_police <- function(df, crime_type, n_of_police = ''){
 ### run ####
 # number of police in the quad shift
 df_shift$n_of_police <- 2
-df_shift$rn_of_police <- redistribute(df_shift,'sum')
+df_shift$rn_of_police <- redistribute(df_shift, 'sum')
 
 # number of crimes per police
 df_shift$cpp <- crime_per_police(df_shift, 'sum')
@@ -186,10 +186,30 @@ plot_cpp <- function(df, cpp, rcpp){
   #print(p)
   #return(p)
 }
-p_cpp <- plot_cpp(df_shift, 'cpp', 'rcpp')
+p_cpp <- plot_cpp(df_shift, 'cpp', 'rcpp') +
+  labs(subtitle = "Proportional redistribution according to crime per quadrant") +
+  theme(plot.subtitle = element_text(hjust = 0.5, size = 10))
 p_cpp
 ggsave(filename = "hist_crimes_p_officer.png",
        plot = p_cpp,
+       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+
+quantile(df_shift$cpp, probs = seq(.1, .9, by = .1))
+df_shift$cpp_rank <- case_when(df_shift$cpp < 5.5 ~ 1,
+                               df_shift$cpp >= 5.5 & df_shift$cpp < 12.5 ~ 2,
+                               df_shift$cpp >= 12.5 & df_shift$cpp < 23.15 ~ 3,
+                               df_shift$cpp >= 23.1 & df_shift$cpp < 41 ~ 4,
+                               df_shift$cpp > 41 ~ 5)
+df_shift$rn_police_quintile <- case_when(df_shift$cpp_rank == 1 ~ df_shift$n_of_police - 1,
+                                         df_shift$cpp_rank > 1 & df_shift$cpp_rank < 5  ~ df_shift$n_of_police,
+                                         df_shift$cpp_rank == 5 ~ df_shift$n_of_police + 1)
+df_shift$rcpp_quintile <- crime_per_police(df_shift, 'sum', 'rn_police_quintile')
+p_cpp_quintile <- plot_cpp(df_shift, 'cpp', 'rcpp_quintile') +
+  labs(subtitle = "One officer from 20% lowest crime quadrants to 20% highest crime quadrants") +
+  theme(plot.subtitle = element_text(hjust = 0.5, size = 10))
+p_cpp_quintile
+ggsave(filename = "p_cpp_quintile.png",
+       plot = p_cpp_quintile,
        path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
 
 
