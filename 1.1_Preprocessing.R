@@ -165,10 +165,10 @@ plot_cpp <- function(df, cpp, rcpp){
   # prepare df for plotting
   df <- st_drop_geometry(df)
   df_temp <- as.data.frame(df[,c('region', 'shift', cpp, rcpp)])
-  df_long <- melt(df,id.vars=c("region", "shift"),
-                  measure.vars=c(cpp, rcpp),
+  df_long <- melt(df, id.vars = c("region", "shift"),
+                  measure.vars = c(cpp, rcpp),
                   variable.name = "distribution",
-                  value.name="crime_per_police")
+                  value.name = "crime_per_police")
   levels(df_long$distribution) <- c('before','after')
   group_mean <- ddply(df_long, "distribution", summarise, 
                       grp.mean=mean(crime_per_police))
@@ -371,6 +371,66 @@ map_redis_crimes_officer_quad_2019_nght
 ggsave(filename = "map_redis_crimes_officer_quad_2019_nght.png",
        plot = map_redis_crimes_officer_quad_2019_nght,
        path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+
+### Officers per quadrant
+## status quo
+map_officers_quad_2019 <- ggplot() +
+  geom_sf(data = df_shift[df_shift$shift=='21-5',],
+          aes(fill = n_of_police)) +
+  labs(title = "Officers per Quadrant",
+       subtitle = "Uniform distribution - 2 per quadrant",
+       fill = "Officers per Quadrant") +
+  theme(plot.title = element_text(hjust = 0.5, size = 25),
+        plot.subtitle = element_text(hjust = 0.5, size = 15)) +
+  scale_fill_viridis_c(option = "mako", limits = c(1, 8))
+map_officers_quad_2019
+ggsave(filename = "map_officers_quad_2019.png",
+       plot = map_officers_quad_2019,
+       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+
+### redistribution
+map_redis_officers_quad_2019_morn <- ggplot() +
+  geom_sf(data = df_shift[df_shift$shift=='5-13',],
+          aes(fill = rn_of_police)) +
+  labs(title = "Officers per Quadrant - Redistribution",
+       subtitle = "Morning Shift",
+       fill = "Officers per Quadrant") +
+  theme(plot.title = element_text(hjust = 0.5, size = 25),
+        plot.subtitle = element_text(hjust = 0.5, size = 15)) +
+  scale_fill_viridis_c(option = "mako", limits = c(1, 8)) 
+map_redis_officers_quad_2019_morn
+ggsave(filename = "map_redis_officers_quad_2019_morn.png",
+       plot = map_redis_officers_quad_2019_morn,
+       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+
+map_redis_officers_quad_2019_aftn <- ggplot() +
+  geom_sf(data = df_shift[df_shift$shift=='13-21',],
+          aes(fill = rn_of_police)) +
+  labs(title = "Officers per Quadrant - Redistribution",
+       subtitle = "Afternoon Shift",
+       fill = "Officers per Quadrant") +
+  theme(plot.title = element_text(hjust = 0.5, size = 25),
+        plot.subtitle = element_text(hjust = 0.5, size = 15)) +
+  scale_fill_viridis_c(option = "mako", limits = c(1, 8)) 
+map_redis_officers_quad_2019_aftn
+ggsave(filename = "map_redis_officers_quad_2019_aftn.png",
+       plot = map_redis_officers_quad_2019_aftn,
+       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+
+map_redis_officers_quad_2019_nght <- ggplot() +
+  geom_sf(data = df_shift[df_shift$shift=='21-5',],
+          aes(fill = rn_of_police)) +
+  labs(title = "Officers per Quadrant - Redistribution",
+       subtitle = "Night Shift",
+       fill = "Officers per Quadrant") +
+  theme(plot.title = element_text(hjust = 0.5, size = 25),
+        plot.subtitle = element_text(hjust = 0.5, size = 15)) +
+  scale_fill_viridis_c(option = "mako", limits = c(1, 8)) 
+map_redis_officers_quad_2019_nght
+ggsave(filename = "map_redis_officers_quad_2019_nght.png",
+       plot = map_redis_officers_quad_2019_nght,
+       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+
 
 
 ## Analysis - crimes per officer ----------
