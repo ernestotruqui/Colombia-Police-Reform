@@ -31,6 +31,8 @@ plot_cpp <- function(df, cpp, rcpp){
   #print(p)
   #return(p)
 }
+
+## Optimal reallocation - proportional -----------
 p_cpp <- plot_cpp(df_shift, 'cpp', 'rcpp') +
   labs(subtitle = "Proportional redistribution according to crime per quadrant") +
   theme(plot.subtitle = element_text(hjust = 0.5, size = 10))
@@ -39,7 +41,9 @@ ggsave(filename = "hist_crimes_p_officer.png",
        plot = p_cpp,
        path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
 
-## Different re-allocation strategies: Quintiles
+
+## Different re-allocation strategies: Quintiles ----------
+
 # Send one officer from lowest 20% to highest 20% quad-shifts
 quantile(df_shift$cpp, probs = seq(.1, .9, by = .1))
 df_shift$cpp_rank <- case_when(df_shift$cpp < 5.5 ~ 1,
@@ -183,6 +187,7 @@ plot_grid(map_crimes_quad_2019_morn, map_crimes_quad_2019_aftn, map_crimes_quad_
 
 
 ## Maps of crimes per officer by quadrant --------------
+
 ## Status quo
 map_crimes_officer_quad_2019_morn <- ggplot() +
   geom_sf(data = df_shift[df_shift$shift=='5-13',],
@@ -265,7 +270,9 @@ ggsave(filename = "map_redis_crimes_officer_quad_2019_nght.png",
        plot = map_redis_crimes_officer_quad_2019_nght,
        path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
 
-### Officers per quadrant
+
+### Officers per quadrant -----------------
+
 ## status quo
 map_officers_quad_2019 <- ggplot() +
   geom_sf(data = df_shift[df_shift$shift=='21-5',],
