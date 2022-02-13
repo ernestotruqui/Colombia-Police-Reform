@@ -175,14 +175,15 @@ plot_cpp <- function(df, cpp, rcpp){
   
   
   # plot
-  p <- ggplot(df_long, aes(x=crime_per_police, color=distribution, fill = distribution)) +
+  p <- ggplot(df_long, aes(x = crime_per_police, color = distribution, fill = distribution)) +
     geom_histogram(aes(y=..density..), alpha = 0.05, position = "identity", binwidth = 1)+
     geom_vline(data = group_mean, aes(xintercept = grp.mean, color = distribution),
                size = 1.25)+
     geom_density(alpha = .2)+
     ggtitle('Crime per officer: before and after redistribution') +
     xlab(label = "Crimes per officer by quadrant-shift") +
-    theme(plot.title = element_text(hjust = 0.5, size = 15))
+    theme(plot.title = element_text(hjust = 0.5, size = 15)) +
+    ylim(0, 0.07)
   #print(p)
   #return(p)
 }
@@ -194,6 +195,8 @@ ggsave(filename = "hist_crimes_p_officer.png",
        plot = p_cpp,
        path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
 
+## Different re-allocation strategies: Quintiles
+# Send one officer from lowest 20% to highest 20% quad-shifts
 quantile(df_shift$cpp, probs = seq(.1, .9, by = .1))
 df_shift$cpp_rank <- case_when(df_shift$cpp < 5.5 ~ 1,
                                df_shift$cpp >= 5.5 & df_shift$cpp < 12.5 ~ 2,
@@ -210,6 +213,32 @@ p_cpp_quintile <- plot_cpp(df_shift, 'cpp', 'rcpp_quintile') +
 p_cpp_quintile
 ggsave(filename = "p_cpp_quintile.png",
        plot = p_cpp_quintile,
+       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+
+# Send one officer from lowest 40% to highest 40% quad-shifts
+df_shift$rn_police_2quintile <- case_when(df_shift$cpp_rank < 3 ~ df_shift$n_of_police - 1,
+                                         df_shift$cpp_rank == 3  ~ df_shift$n_of_police,
+                                         df_shift$cpp_rank > 3 ~ df_shift$n_of_police + 1)
+df_shift$rcpp_2quintile <- crime_per_police(df_shift, 'sum', 'rn_police_2quintile')
+p_cpp_2quintile <- plot_cpp(df_shift, 'cpp', 'rcpp_2quintile') +
+  labs(subtitle = "One officer from 40% lowest crime quadrants to 40% highest crime quadrants") +
+  theme(plot.subtitle = element_text(hjust = 0.5, size = 10))
+p_cpp_2quintile
+ggsave(filename = "p_cpp_2quintile.png",
+       plot = p_cpp_2quintile,
+       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+
+# Send one officer from bottom 40% to top 20%
+df_shift$rn_police_3quintile <- case_when(df_shift$cpp_rank < 3 ~ df_shift$n_of_police - 1,
+                                          df_shift$cpp_rank == 3 | df_shift$cpp_rank == 4  ~ df_shift$n_of_police,
+                                          df_shift$cpp_rank > 4 ~ df_shift$n_of_police + 2)
+df_shift$rcpp_3quintile <- crime_per_police(df_shift, 'sum', 'rn_police_3quintile')
+p_cpp_3quintile <- plot_cpp(df_shift, 'cpp', 'rcpp_3quintile') +
+  labs(subtitle = "One officer from 40% lowest crime quadrants to 20% highest crime quadrants") +
+  theme(plot.subtitle = element_text(hjust = 0.5, size = 10))
+p_cpp_3quintile
+ggsave(filename = "p_cpp_3quintile.png",
+       plot = p_cpp_3quintile,
        path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
 
 
