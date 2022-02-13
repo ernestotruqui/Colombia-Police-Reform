@@ -14,8 +14,8 @@ library(tidyverse)
 library(leaflet)
 library(ggeasy)
 
-#PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
-PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data" 
+PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
+#PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data" 
 df_shift_test <- st_read(file.path(PATH, "df_shift.shp")) 
 
 ## Histograms ####
@@ -31,7 +31,7 @@ plot_cpp <- function(df, cpp, rcpp){
                   value.name = "crime_per_police")
   levels(df_long$distribution) <- c('before','after')
   group_mean <- ddply(df_long, "distribution", summarise, 
-                      grp.mean=mean(crime_per_police))
+                      grp.mean=mean(crime_per_police, na.rm = T))
   
   
   # plot
@@ -55,7 +55,7 @@ p_cpp <- plot_cpp(df_shift, 'cpp', 'rcpp') +
 p_cpp
 ggsave(filename = "hist_crimes_p_officer.png",
        plot = p_cpp,
-       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+       path = PATH)
 
 
 ## Different re-allocation strategies: Quintiles ----------
@@ -77,7 +77,7 @@ p_cpp_quintile <- plot_cpp(df_shift, 'cpp', 'rcpp_quintile') +
 p_cpp_quintile
 ggsave(filename = "p_cpp_quintile.png",
        plot = p_cpp_quintile,
-       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+       path = PATH)
 
 # Send one officer from lowest 40% to highest 40% quad-shifts
 df_shift$rn_police_2quintile <- case_when(df_shift$cpp_rank < 3 ~ df_shift$n_of_police - 1,
@@ -90,7 +90,7 @@ p_cpp_2quintile <- plot_cpp(df_shift, 'cpp', 'rcpp_2quintile') +
 p_cpp_2quintile
 ggsave(filename = "p_cpp_2quintile.png",
        plot = p_cpp_2quintile,
-       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+       path = PATH)
 
 # Send one officer from bottom 40% to top 20%
 df_shift$rn_police_3quintile <- case_when(df_shift$cpp_rank < 3 ~ df_shift$n_of_police - 1,
@@ -103,7 +103,10 @@ p_cpp_3quintile <- plot_cpp(df_shift, 'cpp', 'rcpp_3quintile') +
 p_cpp_3quintile
 ggsave(filename = "p_cpp_3quintile.png",
        plot = p_cpp_3quintile,
-       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+       path = PATH)
+
+
+
 
 
 ### crime per quad shift ####

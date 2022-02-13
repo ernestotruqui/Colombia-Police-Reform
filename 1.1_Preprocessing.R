@@ -105,7 +105,6 @@ p2p <- function(df_crime, df_shp){
 }
 
 
-
 ### run ####
 
 # Get block level data
