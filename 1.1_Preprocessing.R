@@ -1,8 +1,8 @@
 # Set Environment####
 ## set path and options####
 options(scipen = 999)
-#PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
-PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data" 
+PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
+#PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data" 
 
 ## load libraries####
 library(readxl)
@@ -64,20 +64,23 @@ merge_crime_data <- function(fname, path = PATH){
 df_crime19 <- merge_crime_data('CrimesV2.xlsx')
 
 ## Pre-processing Shapefile ####
+
 clean_shp <- function(df_shp){
   df_shp <- df_shp[!substr(as.character(df_shp$NRO_CUADRA), 13, 13) %in% c('6', '7'),]
   df_shp <- df_shp[is.na(df_shp$SUBESTACIO),]
   df_shp <- df_shp[which(df_shp$ESTACION!='SAN ANTONIO DE PRADO'),]
+  df_shp <- df_shp[-which(df_shp$NRO_CUADRA %in% c('MEVALMNVCCD03E03C03000008',
+                                                   'MEVALMNVCCD04E02C03000028')),]
   # df_shp <- df_shp[which(df_shp$CAI!='CAI LAS PALMAS'),]
   colnames(df_shp)[which(names(df_shp) == "NRO_CUADRA")] <- 'region'
   return(df_shp)
 }
 
-clean_shp_old <- function(df_shp){
-  df_shp <- df_shp[,'COD_DANE_A']
-  colnames(df_shp)[which(names(df_shp) == "COD_DANE_A")] <- 'region'
-  return(df_shp)
-}
+# clean_shp_old <- function(df_shp){
+#  df_shp <- df_shp[,'COD_DANE_A']
+#  colnames(df_shp)[which(names(df_shp) == "COD_DANE_A")] <- 'region'
+#  return(df_shp)
+#}
 
 p2p <- function(df_crime, df_shp){
   pnts <- data.frame('x' = unlist(map(df_crime$geometry, 1)),
@@ -101,6 +104,8 @@ p2p <- function(df_crime, df_shp){
   return(df_crime)
 }
 
+
+
 ### run ####
 
 # Get block level data
@@ -111,6 +116,13 @@ p2p <- function(df_crime, df_shp){
 
 df_shp <- clean_shp(st_read(file.path(PATH, '07_Cuadrantes')))
 df_crime19 <- p2p(df_crime19, df_shp)
+
+#plot map with quad names
+#cnames <- aggregate(cbind(LONGITUD, LATITUD) ~ region, data=df_shp, 
+#                    FUN=function(x)mean(range(x)))
+#ggplot(df_shp, aes(LONGITUD, LATITUD)) +  
+#  geom_text(data=cnames, aes(LONGITUD, LATITUD, label = region), size=2) +
+#  coord_map()
 
 ## Summarise to Quadrants Shift Level ####
 change_to_shift <- function(df_crime, shp = df_shp){
@@ -160,10 +172,8 @@ df_shift$rn_of_police <- redistribute(df_shift, 'sum')
 df_shift$cpp <- crime_per_police(df_shift, 'sum')
 df_shift$rcpp <- crime_per_police(df_shift, 'sum', 'rn_of_police')
 
+# Write Data####
 st_write(df_shift, "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data/df_shift.shp")
-
 df_shift_dataframe <- fortify(df_shift)
 write.csv(df_shift_dataframe, 
           file = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data/df_shift_dataframe.csv")
-
-
