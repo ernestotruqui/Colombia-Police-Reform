@@ -16,7 +16,7 @@ library(ggeasy)
 
 #PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
 PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data" 
-df_shift_test <- st_read(file.path(PATH, "df_shift.shp")) 
+df_shift <- st_read(file.path(PATH, "df_shift.shp")) 
 
 ## Histograms ####
 
@@ -140,7 +140,7 @@ ggsave(filename = "p_cpp_3quintile.png",
 #         path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
 # 
 
-# table to export for data task ------
+# table with crime sum stats by shift ------
 table_crimes <- df_shift %>%
   st_drop_geometry() %>%
   group_by(shift) %>%
