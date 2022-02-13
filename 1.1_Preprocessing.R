@@ -14,6 +14,7 @@ library(plyr)
 library(dplyr)
 library(lubridate)
 library(tidyverse)
+#install.packages("leaflet")
 library(leaflet)
 library(ggeasy)
 
