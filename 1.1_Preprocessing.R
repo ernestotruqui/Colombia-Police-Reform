@@ -13,6 +13,7 @@ library(plyr)
 library(dplyr)
 library(lubridate)
 library(tidyverse)
+library(leaflet)
 library(ggeasy)
 
 # Data Cleaning ####
@@ -63,6 +64,9 @@ df_crime19 <- merge_crime_data('CrimesV2.xlsx')
 ## Pre-processing Shapefile ####
 clean_shp <- function(df_shp){
   df_shp <- df_shp[!substr(as.character(df_shp$NRO_CUADRA), 13, 13) %in% c('6', '7'),]
+  df_shp <- df_shp[is.na(df_shp$SUBESTACIO),]
+  df_shp <- df_shp[which(df_shp$ESTACION!='SAN ANTONIO DE PRADO'),]
+  # df_shp <- df_shp[which(df_shp$CAI!='CAI LAS PALMAS'),]
   colnames(df_shp)[which(names(df_shp) == "NRO_CUADRA")] <- 'region'
   return(df_shp)
 }
@@ -129,6 +133,7 @@ df_shift <- change_to_shift(df_crime19)
 # Redistribution####
 ## redistribution algo####
 redistribute <- function(df,colname){
+  # df$temp <- (2*nrow(df) * st_drop_geometry(df)[,colname] / sum(st_drop_geometry(df)[,colname]))
   df$temp <- (nrow(df) * st_drop_geometry(df)[,colname] / sum(st_drop_geometry(df)[,colname])) + 1
   df$temp <- round(df$temp)
   #colnames(df)[which(names(df) == "temp")] <- paste('rn_', colname, sep = '')
