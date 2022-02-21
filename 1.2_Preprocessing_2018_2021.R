@@ -71,6 +71,7 @@ merge_crime_data <- function(fname, path = PATH){
 
 df_crime_yrs <- merge_crime_data('Crimes_MDE_V3.xlsx')
 
+# create subsets of crime df by year ----
 df_crime_18 <- df_crime_yrs %>%
   filter(year == 2018)
 df_crime_19 <- df_crime_yrs %>%
@@ -118,7 +119,6 @@ p2p <- function(df_crime, df_shp){
 }
 
 df_shp <- clean_shp(st_read(file.path(PATH, '07_Cuadrantes')))
-df_crime_yrs_test <- p2p(df_crime_yrs, df_shp)
 df_crime_18 <- p2p(df_crime_18, df_shp)
 df_crime_19 <- p2p(df_crime_19, df_shp)
 df_crime_20 <- p2p(df_crime_20, df_shp)
@@ -140,10 +140,57 @@ change_to_shift <- function(df_crime, shp = df_shp){
   return(df_quad)
 }
 
-### run ####
-df_shift_test <- change_to_shift(df_crime_yrs_test)
+### create dfs for yearly crime per quad_shift -----
 df_shift_18 <- change_to_shift(df_crime_18)
 df_shift_19 <- change_to_shift(df_crime_19)
 df_shift_20 <- change_to_shift(df_crime_20)
 df_shift_21 <- change_to_shift(df_crime_21)
 
+
+# Redistribution optimal formula --------
+redistribute <- function(df, colname){
+  df$temp <- (nrow(df) * st_drop_geometry(df)[,colname] / sum(st_drop_geometry(df)[,colname])) + 1
+  df$temp <- round(df$temp)
+  return(df$temp)
+}
+# crimes per police calculation
+crime_per_police <- function(df, crime_type, n_of_police = ''){
+  df <- st_drop_geometry(df)
+  if (n_of_police == '') {
+    df$temp <- df[,crime_type] / 2
+  }
+  else {
+    df$temp <- df[,crime_type] / df[,n_of_police]
+  }
+  return(df$temp)
+}
+
+### run ####
+# number of police in the quad shift
+df_shift_18$n_of_police <- 2
+df_shift_18$rn_of_police <- redistribute(df_shift_18, 'sum')
+df_shift_19$n_of_police <- 2
+df_shift_19$rn_of_police <- redistribute(df_shift_19, 'sum')
+df_shift_20$n_of_police <- 2
+df_shift_20$rn_of_police <- redistribute(df_shift_20, 'sum')
+df_shift_21$n_of_police <- 2
+df_shift_21$rn_of_police <- redistribute(df_shift_21, 'sum')
+
+
+# number of crimes per police
+df_shift_18$cpp <- crime_per_police(df_shift_18, 'sum')
+df_shift_18$rcpp <- crime_per_police(df_shift_18, 'sum', 'rn_of_police')
+df_shift_19$cpp <- crime_per_police(df_shift_19, 'sum')
+df_shift_19$rcpp <- crime_per_police(df_shift_19, 'sum', 'rn_of_police')
+df_shift_20$cpp <- crime_per_police(df_shift_20, 'sum')
+df_shift_20$rcpp <- crime_per_police(df_shift_20, 'sum', 'rn_of_police')
+df_shift_21$cpp <- crime_per_police(df_shift_21, 'sum')
+df_shift_21$rcpp <- crime_per_police(df_shift_21, 'sum', 'rn_of_police')
+
+
+
+#save dfs
+st_write(df_shift_18, "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data/df_shift_18.shp")
+st_write(df_shift_19, "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data/df_shift_19.shp")
+st_write(df_shift_20, "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data/df_shift_20.shp")
+st_write(df_shift_21, "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data/df_shift_21.shp")
