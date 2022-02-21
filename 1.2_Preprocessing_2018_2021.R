@@ -61,12 +61,26 @@ merge_crime_data <- function(fname, path = PATH){
     dplyr::rename(date = fecha,
                   hour = hora_24)
   
+  #get years
+  df <- df %>%
+    mutate(year = year(date),
+           month = month(date))
+  
   return(df)
 }
 
 df_crime_yrs <- merge_crime_data('Crimes_MDE_V3.xlsx')
 
-
+df_crime_18 <- df_crime_yrs %>%
+  filter(year == 2018)
+df_crime_19 <- df_crime_yrs %>%
+  filter(year == 2019)
+df_crime_20 <- df_crime_yrs %>%
+  filter(year == 2020)
+df_crime_21 <- df_crime_yrs %>%
+  filter(year == 2021)
+df_crime_22 <- df_crime_yrs %>%
+  filter(year == 2022)
 
 
 
