@@ -119,8 +119,31 @@ p2p <- function(df_crime, df_shp){
 
 df_shp <- clean_shp(st_read(file.path(PATH, '07_Cuadrantes')))
 df_crime_yrs_test <- p2p(df_crime_yrs, df_shp)
+df_crime_18 <- p2p(df_crime_18, df_shp)
+df_crime_19 <- p2p(df_crime_19, df_shp)
+df_crime_20 <- p2p(df_crime_20, df_shp)
+df_crime_21 <- p2p(df_crime_21, df_shp)
 
+change_to_shift <- function(df_crime, shp = df_shp){
+  df_quad <- data.frame(region = rep(df_shp$region, 3),
+                        shift = rep(c("21-5", "5-13", "13-21"), each = nrow(df_shp)))
+  df_temp <- df_crime %>% 
+    group_by(region, shift) %>% 
+    dplyr::summarise(homicide = sum(crime_type == 'homicide'),
+                     theft = sum(crime_type == 'robbery'),
+                     vehicle_theft= sum(crime_type == 'car theft'),
+                     sum = n())
+  df_quad <- merge(df_quad, df_temp, by = c('region','shift'), all.x = T)
+  df_quad[is.na(df_quad)] <- 0
+  #df_quad <- merge(df_quad[, c(1:7)], shp[, c(2, 13)], all = T)
+  df_quad <- st_as_sf(df_quad)
+  return(df_quad)
+}
 
-
-
+### run ####
+df_shift_test <- change_to_shift(df_crime_yrs_test)
+df_shift_18 <- change_to_shift(df_crime_18)
+df_shift_19 <- change_to_shift(df_crime_19)
+df_shift_20 <- change_to_shift(df_crime_20)
+df_shift_21 <- change_to_shift(df_crime_21)
 
