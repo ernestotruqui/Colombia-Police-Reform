@@ -145,8 +145,8 @@ change_to_shift <- function(df_crime, shp = df_shp){
 df_shift <- change_to_shift(df_crime19)
 
 # Redistribution####
-## redistribution algo####
-redistribute <- function(df,colname){
+## redistribution algorithm ####
+redistribute <- function(df, colname){
   df$temp <- (nrow(df) * st_drop_geometry(df)[,colname] / sum(st_drop_geometry(df)[,colname])) + 1
   df$temp <- round(df$temp)
   return(df$temp)
