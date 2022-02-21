@@ -82,8 +82,43 @@ df_crime_21 <- df_crime_yrs %>%
 df_crime_22 <- df_crime_yrs %>%
   filter(year == 2022)
 
+## Pre-processing Shapefile ####
 
+clean_shp <- function(df_shp){
+  df_shp <- df_shp[!substr(as.character(df_shp$NRO_CUADRA), 13, 13) %in% c('6', '7'),]
+  df_shp <- df_shp[is.na(df_shp$SUBESTACIO),]
+  df_shp <- df_shp[which(df_shp$ESTACION!='SAN ANTONIO DE PRADO'),]
+  df_shp <- df_shp[-which(df_shp$NRO_CUADRA %in% c('MEVALMNVCCD03E03C03000008',
+                                                   'MEVALMNVCCD04E02C03000028')),]
+  # df_shp <- df_shp[which(df_shp$CAI!='CAI LAS PALMAS'),]
+  colnames(df_shp)[which(names(df_shp) == "NRO_CUADRA")] <- 'region'
+  return(df_shp)
+}
 
+p2p <- function(df_crime, df_shp){
+  pnts <- data.frame('x' = unlist(map(df_crime$geometry, 1)),
+                     'y' = unlist(map(df_crime$geometry, 2)))
+  
+  # create a points collection
+  pnts_sf <- do.call("st_sfc", c(lapply(1:nrow(pnts), 
+                                        function(i) {st_point(as.numeric(pnts[i, ]))}), list("crs" = 4326))) 
+  
+  # apply transformation to pnts sf
+  pnts_trans <- st_transform(pnts_sf, 2163) 
+  tt1_trans <- st_transform(df_shp, 2163)
+  
+  
+  pnts$region <- apply(st_intersects(tt1_trans, pnts_trans, sparse = FALSE), 2, 
+                       function(col) { 
+                         tt1_trans[which(col), ]$region
+                       })
+  
+  df_crime$region <- as.character(pnts$region)
+  return(df_crime)
+}
+
+df_shp <- clean_shp(st_read(file.path(PATH, '07_Cuadrantes')))
+df_crime_yrs_test <- p2p(df_crime_yrs, df_shp)
 
 
 
