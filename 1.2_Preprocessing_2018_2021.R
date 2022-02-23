@@ -163,7 +163,7 @@ df_shifts_avg <- df_shifts %>%
   dplyr::summarise(homicide = mean(homicide),
                    theft = mean(theft),
                    vehicle_theft = mean(vehicle_theft),
-                   total = mean(sum)) %>%
+                   sum = mean(sum)) %>%
   left_join(df_geoms, by = "region") %>%
   st_as_sf()
 
@@ -188,32 +188,13 @@ crime_per_police <- function(df, crime_type, n_of_police = ''){
 ### run ####
 # number of police in the quad shift
 df_shifts_avg$n_of_police <- 2
-df_shifts_avg$rn_of_police <- as.numeric(unlist(redistribute(df_shifts_avg, "total")))
-df_shifts_avg <- df_shifts_avg %>%
-  rename(rn_of_police = rn_of_police.total)
+df_shifts_avg$rn_of_police <- as.numeric(unlist(redistribute(df_shifts_avg, "sum")))
 
-  rn_of_police = 
-  mutate(n_of_police = 2,
-         rn_of_police = redistribute(df_shifts_avg, "total"))
 
 # number of crimes per police
-df_shifts_avg <- df_shifts_avg %>%
-  mutate(cpp = crime_per_police(df_shifts_avg, 'total'),
-         rcpp = crime_per_police(df_shifts_avg, 'total', 'rn_of_police'))
-
-df_shift_18$cpp <- crime_per_police(df_shift_18, 'sum')
-df_shift_18$rcpp <- crime_per_police(df_shift_18, 'sum', 'rn_of_police')
-df_shift_19$cpp <- crime_per_police(df_shift_19, 'sum')
-df_shift_19$rcpp <- crime_per_police(df_shift_19, 'sum', 'rn_of_police')
-df_shift_20$cpp <- crime_per_police(df_shift_20, 'sum')
-df_shift_20$rcpp <- crime_per_police(df_shift_20, 'sum', 'rn_of_police')
-df_shift_21$cpp <- crime_per_police(df_shift_21, 'sum')
-df_shift_21$rcpp <- crime_per_police(df_shift_21, 'sum', 'rn_of_police')
-
+df_shifts_avg$cpp <- as.numeric(unlist(crime_per_police(df_shifts_avg, 'sum')))
+df_shifts_avg$rcpp <- as.numeric(unlist(crime_per_police(df_shifts_avg, 'sum', 'rn_of_police')))
 
 
 #save dfs
-st_write(df_shift_18, "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data/df_shift_18.shp")
-st_write(df_shift_19, "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data/df_shift_19.shp")
-st_write(df_shift_20, "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data/df_shift_20.shp")
-st_write(df_shift_21, "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data/df_shift_21.shp")
+st_write(df_shifts_avg, "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data/df_shifts_avg.shp", append = F, delete_layer = T)
