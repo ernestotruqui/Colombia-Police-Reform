@@ -135,7 +135,8 @@ change_to_shift <- function(df_crime, shp = df_shp){
                      sum = n())
   df_quad <- merge(df_quad, df_temp, by = c('region','shift'), all.x = T)
   df_quad[is.na(df_quad)] <- 0
-  #df_quad <- merge(df_quad[, c(1:7)], shp[, c(2, 13)], all = T)
+  df_quad <- df_quad[,-7]
+  df_quad <- merge(df_quad, shp[, c(2, 13)], all = T)
   df_quad <- st_as_sf(df_quad)
   return(df_quad)
 }
