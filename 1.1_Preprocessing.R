@@ -1,8 +1,8 @@
 # Set Environment####
 ## set path and options####
 options(scipen = 999)
-PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
-#PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data" 
+#PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
+PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data" 
 
 ## load libraries####
 library(readxl)
@@ -173,6 +173,3 @@ df_shift$rcpp <- crime_per_police(df_shift, 'sum', 'rn_of_police')
 
 # Write Data####
 st_write(df_shift, "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data/df_shift.shp")
-df_shift_dataframe <- fortify(df_shift)
-write.csv(df_shift_dataframe, 
-          file = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data/df_shift_dataframe.csv")
