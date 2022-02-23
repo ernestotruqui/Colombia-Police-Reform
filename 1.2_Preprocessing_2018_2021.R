@@ -68,7 +68,6 @@ merge_crime_data <- function(fname, path = PATH){
   
   return(df)
 }
-
 df_crime_yrs <- merge_crime_data('Crimes_MDE_V3.xlsx')
 
 # create subsets of crime df by year ----
@@ -118,6 +117,21 @@ p2p <- function(df_crime, df_shp){
   return(df_crime)
 }
 
+r <- df_shp_raw %>%
+  st_drop_geometry() %>%
+  group_by(ESTACION) %>%
+  dplyr::summarise(n = n())
+
+
+df_shp_raw <- st_read(file.path(PATH, '07_Cuadrantes'))
+df_shp_stations <- df_shp_raw %>%
+  st_drop_geometry() %>%
+  select(NRO_CUADRA, ESTACION)
+
+df_shift_18 %>%
+  st_drop_geometry() %>%
+  left_join(df_shp_stations, by = c("region" = "NRO_CUADRA"))
+
 df_shp <- clean_shp(st_read(file.path(PATH, '07_Cuadrantes')))
 df_crime_18 <- p2p(df_crime_18, df_shp)
 df_crime_19 <- p2p(df_crime_19, df_shp)
@@ -137,6 +151,8 @@ change_to_shift <- function(df_crime, shp = df_shp){
   df_quad[is.na(df_quad)] <- 0
   df_quad <- df_quad[,-7]
   df_quad <- merge(df_quad, shp[, c(2, 13)], all = T)
+  df_quad <- df_quad %>%
+    left_join(df_shp_stations, by = c("region" = "NRO_CUADRA"))
   df_quad <- st_as_sf(df_quad)
   return(df_quad)
 }
