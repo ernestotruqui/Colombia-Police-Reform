@@ -16,7 +16,7 @@ library(ggeasy)
 
 #PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
 PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data" 
-df_shift <- st_read(file.path(PATH, "df_shift.shp")) 
+df_shift <- st_read(file.path(PATH, "df_shifts_avg.shp")) 
 
 ## Histograms ####
 
@@ -117,7 +117,7 @@ ggsave(filename = "p_cpp_3quintile.png",
 #    theme(plot.title = element_text(hjust = 0.5,
 #                                    size = 20),
 #          axis.title = element_text(size = 16)) +
-#    scale_x_continuous(breaks = seq(0, 300, 25)) #+
+#    scale_x_continuous(breaks = seq(0, 170, 25)) #+
 #    #annotate("text", label = c("286 quadrants", "    x 3 shifts", "= 858 quadrant-shifts"),
 #     #        x = c(250, 250, 250), y = c(80, 76, 72))
 #  hist_crimes
@@ -159,9 +159,13 @@ map_simple <- ggplot() +
   geom_sf(data = df_shift[df_shift$shift=='5-13',],
           aes(fill = sum)) +
   labs(fill = "Crimes",
-       color = "Crimes") +
-  scale_fill_viridis_c(option = "inferno", limits = c(0, 300)) +
-  scale_color_viridis_c(option = "inferno", limits = c(0, 300))
+       color = "Crimes",
+       title = "Crimes per quadrant in Medellin",
+       subtitle = "Average over 2018-2021") +
+  theme(plot.title = element_text(hjust = 0.5, size = 25),
+        plot.subtitle = element_text(hjust = 0.5, size = 25)) +
+  scale_fill_viridis_c(option = "inferno", limits = c(0, 170)) +
+  scale_color_viridis_c(option = "inferno", limits = c(0, 170)) 
 ggsave(filename = "map_simple.png",
        plot = map_simple,
        path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
@@ -174,8 +178,8 @@ map_crimes_quad_2019_morn <- ggplot() +
        fill = "Crimes",
        color = "Crimes") +
   theme(plot.title = element_text(hjust = 0.5, size = 25)) +
-  scale_fill_viridis_c(option = "inferno", limits = c(0, 300)) +
-  scale_color_viridis_c(option = "inferno", limits = c(0, 300)) 
+  scale_fill_viridis_c(option = "inferno", limits = c(0, 170)) +
+  scale_color_viridis_c(option = "inferno", limits = c(0, 170)) 
 map_crimes_quad_2019_morn
 ggsave(filename = "map_crimes_quad_2019_morn.png",
        plot = map_crimes_quad_2019_morn,
@@ -188,8 +192,8 @@ map_crimes_quad_2019_aftn <- ggplot() +
        fill = "Crimes",
        color = "Crimes") +
   theme(plot.title = element_text(hjust = 0.5, size = 25)) +
-  scale_fill_viridis_c(option = "inferno", limits = c(0, 300)) +
-  scale_color_viridis_c(option = "inferno", limits = c(0, 300)) 
+  scale_fill_viridis_c(option = "inferno", limits = c(0, 170)) +
+  scale_color_viridis_c(option = "inferno", limits = c(0, 170)) 
 map_crimes_quad_2019_aftn
 ggsave(filename = "map_crimes_quad_2019_aftn.png",
        plot = map_crimes_quad_2019_aftn,
@@ -202,8 +206,8 @@ map_crimes_quad_2019_nght <- ggplot() +
        fill = "Crimes",
        color = "Crimes") +
   theme(plot.title = element_text(hjust = 0.5, size = 25)) +
-  scale_fill_viridis_c(option = "inferno", limits = c(0, 300)) +
-  scale_color_viridis_c(option = "inferno", limits = c(0, 300)) 
+  scale_fill_viridis_c(option = "inferno", limits = c(0, 170)) +
+  scale_color_viridis_c(option = "inferno", limits = c(0, 170)) 
 map_crimes_quad_2019_nght
 ggsave(filename = "map_crimes_quad_2019_nght.png",
        plot = map_crimes_quad_2019_nght,
@@ -303,7 +307,8 @@ ggsave(filename = "map_redis_crimes_officer_quad_2019_nght.png",
 ## status quo
 map_officers_quad_2019 <- ggplot() +
   geom_sf(data = df_shift[df_shift$shift=='21-5',],
-          aes(fill = n_of_police)) +
+         #aes(fill = n_of_police)) +
+         aes(fill = n_f_plc)) +
   labs(title = "Officers per Quadrant",
        subtitle = "Uniform distribution - 2 per quadrant",
        fill = "Officers per Quadrant") +
@@ -318,7 +323,8 @@ ggsave(filename = "map_officers_quad_2019.png",
 ### redistribution
 map_redis_officers_quad_2019_morn <- ggplot() +
   geom_sf(data = df_shift[df_shift$shift=='5-13',],
-          aes(fill = rn_of_police)) +
+          #aes(fill = rn_of_police)) +
+          aes(fill = rn_f_pl)) +
   labs(title = "Officers per Quadrant - Redistribution",
        subtitle = "Morning Shift",
        fill = "Officers per Quadrant") +
@@ -332,7 +338,8 @@ ggsave(filename = "map_redis_officers_quad_2019_morn.png",
 
 map_redis_officers_quad_2019_aftn <- ggplot() +
   geom_sf(data = df_shift[df_shift$shift=='13-21',],
-          aes(fill = rn_of_police)) +
+          #aes(fill = rn_of_police)) +
+          aes(fill = rn_f_pl)) +
   labs(title = "Officers per Quadrant - Redistribution",
        subtitle = "Afternoon Shift",
        fill = "Officers per Quadrant") +
@@ -346,7 +353,8 @@ ggsave(filename = "map_redis_officers_quad_2019_aftn.png",
 
 map_redis_officers_quad_2019_nght <- ggplot() +
   geom_sf(data = df_shift[df_shift$shift=='21-5',],
-          aes(fill = rn_of_police)) +
+          #aes(fill = rn_of_police)) +
+          aes(fill = rn_f_pl)) +
   labs(title = "Officers per Quadrant - Redistribution",
        subtitle = "Night Shift",
        fill = "Officers per Quadrant") +
