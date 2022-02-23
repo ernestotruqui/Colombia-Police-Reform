@@ -62,14 +62,14 @@ ggsave(filename = "hist_crimes_p_officer.png",
 
 # Send one officer from lowest 20% to highest 20% quad-shifts
 quantile(df_shift$cpp, probs = seq(.1, .9, by = .1))
-df_shift$cpp_rank <- case_when(df_shift$cpp < 5.5 ~ 1,
-                               df_shift$cpp >= 5.5 & df_shift$cpp < 12.5 ~ 2,
-                               df_shift$cpp >= 12.5 & df_shift$cpp < 23.15 ~ 3,
-                               df_shift$cpp >= 23.1 & df_shift$cpp < 41 ~ 4,
-                               df_shift$cpp > 41 ~ 5)
-df_shift$rn_police_quintile <- case_when(df_shift$cpp_rank == 1 ~ df_shift$n_of_police - 1,
-                                         df_shift$cpp_rank > 1 & df_shift$cpp_rank < 5  ~ df_shift$n_of_police,
-                                         df_shift$cpp_rank == 5 ~ df_shift$n_of_police + 1)
+df_shift$cpp_rank <- case_when(df_shift$cpp < 3.875 ~ 1,
+                               df_shift$cpp >= 3.875 & df_shift$cpp < 8.750 ~ 2,
+                               df_shift$cpp >= 8.750 & df_shift$cpp < 14.775 ~ 3,
+                               df_shift$cpp >= 14.775 & df_shift$cpp < 24.700 ~ 4,
+                               df_shift$cpp > 24.700 ~ 5)
+df_shift$rn_police_quintile <- case_when(df_shift$cpp_rank == 1 ~ df_shift$n_f_plc - 1,
+                                         df_shift$cpp_rank > 1 & df_shift$cpp_rank < 5  ~ df_shift$n_f_plc,
+                                         df_shift$cpp_rank == 5 ~ df_shift$n_f_plc + 1)
 df_shift$rcpp_quintile <- crime_per_police(df_shift, 'sum', 'rn_police_quintile')
 p_cpp_quintile <- plot_cpp(df_shift, 'cpp', 'rcpp_quintile') +
   labs(subtitle = "One officer from 20% lowest crime quadrants to 20% highest crime quadrants") +
@@ -80,9 +80,9 @@ ggsave(filename = "p_cpp_quintile.png",
        path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
 
 # Send one officer from lowest 40% to highest 40% quad-shifts
-df_shift$rn_police_2quintile <- case_when(df_shift$cpp_rank < 3 ~ df_shift$n_of_police - 1,
-                                          df_shift$cpp_rank == 3  ~ df_shift$n_of_police,
-                                          df_shift$cpp_rank > 3 ~ df_shift$n_of_police + 1)
+df_shift$rn_police_2quintile <- case_when(df_shift$cpp_rank < 3 ~ df_shift$n_f_plc - 1,
+                                          df_shift$cpp_rank == 3  ~ df_shift$n_f_plc,
+                                          df_shift$cpp_rank > 3 ~ df_shift$n_f_plc + 1)
 df_shift$rcpp_2quintile <- crime_per_police(df_shift, 'sum', 'rn_police_2quintile')
 p_cpp_2quintile <- plot_cpp(df_shift, 'cpp', 'rcpp_2quintile') +
   labs(subtitle = "One officer from 40% lowest crime quadrants to 40% highest crime quadrants") +
@@ -93,9 +93,9 @@ ggsave(filename = "p_cpp_2quintile.png",
        path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
 
 # Send one officer from bottom 40% to top 20%
-df_shift$rn_police_3quintile <- case_when(df_shift$cpp_rank < 3 ~ df_shift$n_of_police - 1,
-                                          df_shift$cpp_rank == 3 | df_shift$cpp_rank == 4  ~ df_shift$n_of_police,
-                                          df_shift$cpp_rank > 4 ~ df_shift$n_of_police + 2)
+df_shift$rn_police_3quintile <- case_when(df_shift$cpp_rank < 3 ~ df_shift$n_f_plc - 1,
+                                          df_shift$cpp_rank == 3 | df_shift$cpp_rank == 4  ~ df_shift$n_f_plc,
+                                          df_shift$cpp_rank > 4 ~ df_shift$n_f_plc + 2)
 df_shift$rcpp_3quintile <- crime_per_police(df_shift, 'sum', 'rn_police_3quintile')
 p_cpp_3quintile <- plot_cpp(df_shift, 'cpp', 'rcpp_3quintile') +
   labs(subtitle = "One officer from 40% lowest crime quadrants to 20% highest crime quadrants") +
@@ -144,10 +144,9 @@ ggsave(filename = "p_cpp_3quintile.png",
 table_crimes <- df_shift %>%
   st_drop_geometry() %>%
   group_by(shift) %>%
-  summarise(`Total homicides` = sum(homicide),
-            `Total car thefts` = sum(vehicle_theft),
+  summarise(`Total homicides` = sum(homicid),
+            `Total car thefts` = sum(vhcl_th),
             `Total robberies` = sum(theft),
-            `Total burglaries` = sum(burglary),
             `Total crimes` = sum(sum)) %>%
   as.data.frame()
 write.csv(x = table_crimes,
