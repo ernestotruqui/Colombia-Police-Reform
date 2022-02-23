@@ -117,20 +117,12 @@ p2p <- function(df_crime, df_shp){
   return(df_crime)
 }
 
-r <- df_shp_raw %>%
-  st_drop_geometry() %>%
-  group_by(ESTACION) %>%
-  dplyr::summarise(n = n())
-
-
 df_shp_raw <- st_read(file.path(PATH, '07_Cuadrantes'))
 df_shp_stations <- df_shp_raw %>%
   st_drop_geometry() %>%
   select(NRO_CUADRA, ESTACION)
-
-df_shift_18 %>%
-  st_drop_geometry() %>%
-  left_join(df_shp_stations, by = c("region" = "NRO_CUADRA"))
+df_geoms <- df_shp %>%
+  select(region, geometry)
 
 df_shp <- clean_shp(st_read(file.path(PATH, '07_Cuadrantes')))
 df_crime_18 <- p2p(df_crime_18, df_shp)
@@ -163,6 +155,17 @@ df_shift_19 <- change_to_shift(df_crime_19)
 df_shift_20 <- change_to_shift(df_crime_20)
 df_shift_21 <- change_to_shift(df_crime_21)
 
+df_shifts <- rbind(df_shift_18, df_shift_19, df_shift_20, df_shift_21)
+
+df_shifts_avg <- df_shifts %>%
+  st_drop_geometry() %>%
+  group_by(region, ESTACION, shift) %>%
+  dplyr::summarise(homicide = mean(homicide),
+                   theft = mean(theft),
+                   vehicle_theft = mean(vehicle_theft),
+                   total = mean(sum)) %>%
+  left_join(df_geoms, by = "region") %>%
+  st_as_sf()
 
 # Redistribution optimal formula --------
 redistribute <- function(df, colname){
@@ -184,17 +187,20 @@ crime_per_police <- function(df, crime_type, n_of_police = ''){
 
 ### run ####
 # number of police in the quad shift
-df_shift_18$n_of_police <- 2
-df_shift_18$rn_of_police <- redistribute(df_shift_18, 'sum')
-df_shift_19$n_of_police <- 2
-df_shift_19$rn_of_police <- redistribute(df_shift_19, 'sum')
-df_shift_20$n_of_police <- 2
-df_shift_20$rn_of_police <- redistribute(df_shift_20, 'sum')
-df_shift_21$n_of_police <- 2
-df_shift_21$rn_of_police <- redistribute(df_shift_21, 'sum')
+df_shifts_avg$n_of_police <- 2
+df_shifts_avg$rn_of_police <- as.numeric(unlist(redistribute(df_shifts_avg, "total")))
+df_shifts_avg <- df_shifts_avg %>%
+  rename(rn_of_police = rn_of_police.total)
 
+  rn_of_police = 
+  mutate(n_of_police = 2,
+         rn_of_police = redistribute(df_shifts_avg, "total"))
 
 # number of crimes per police
+df_shifts_avg <- df_shifts_avg %>%
+  mutate(cpp = crime_per_police(df_shifts_avg, 'total'),
+         rcpp = crime_per_police(df_shifts_avg, 'total', 'rn_of_police'))
+
 df_shift_18$cpp <- crime_per_police(df_shift_18, 'sum')
 df_shift_18$rcpp <- crime_per_police(df_shift_18, 'sum', 'rn_of_police')
 df_shift_19$cpp <- crime_per_police(df_shift_19, 'sum')
