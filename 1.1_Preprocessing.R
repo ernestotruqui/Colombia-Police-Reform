@@ -1,8 +1,8 @@
 # Set Environment####
 ## set path and options####
 options(scipen = 999)
-#PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
-PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data" 
+PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
+# PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data" 
 
 ## load libraries####
 library(readxl)
@@ -17,6 +17,7 @@ library(tidyverse)
 #install.packages("leaflet")
 library(leaflet)
 library(ggeasy)
+library(rgeos)
 
 # Data Cleaning ####
 ## Pre-processing Crime Data ####
@@ -104,6 +105,14 @@ p2p <- function(df_crime, df_shp){
   return(df_crime)
 }
 
+shp2mtx <- function(df_shp){
+  df_shp_sp <- as(df_shp,Class = "Spatial")
+  matrix_shp <- 1*gTouches(df_shp_sp, byid=TRUE)
+  colnames(matrix_shp) <- df_shp_sp$region
+  rownames(matrix_shp) <- df_shp_sp$region
+  return(matrix_shp)
+}
+
 
 ### run ####
 
@@ -114,6 +123,7 @@ p2p <- function(df_crime, df_shp){
 # df_crim19_old <- na.omit(df_crime19_old)
 
 df_shp <- clean_shp(st_read(file.path(PATH, '07_Cuadrantes')))
+mtx_shp <- shp2mtx(df_shp)
 df_crime19 <- p2p(df_crime19, df_shp)
 
 #plot map with quad names
