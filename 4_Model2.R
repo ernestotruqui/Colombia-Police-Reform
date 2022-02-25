@@ -26,12 +26,18 @@ matrix[, paste("teacher", c("height", "smart"), sep="_")] <-
   teachers[match(res$teacher_name, teachers$name), c("height","smart")]
 
 
+morning <- df_shifts_avg %>%
+  filter(shift == "5-13") %>%
+  select("region", "station", "sum", "geometry")
+afternoon <- df_shifts_avg %>%
+  filter(shift == "13-21") %>%
+  select("region", "station", "sum", "geometry")
+night <- df_shifts_avg %>%
+  filter(shift == "21-5") %>%
+  select("region", "station", "sum", "geometry")
 
-
-
-
-
-
+mtx_morn <- shp2mtx(morning)
+morn_pairs <- mtx2df_pairs(mtx_morn)
 
 
 
