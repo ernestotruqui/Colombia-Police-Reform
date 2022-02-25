@@ -7,6 +7,87 @@ library(sf)
 PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data"
 df_shifts_avg <- st_read(file.path(PATH, "df_shifts_avg.shp"))
 
+morning <- df_shifts_avg %>%
+  filter(shift == "5-13") %>%
+  select("region", "station", "sum", "geometry")
+afternoon <- df_shifts_avg %>%
+  filter(shift == "13-21") %>%
+  select("region", "station", "sum", "geometry")
+night <- df_shifts_avg %>%
+  filter(shift == "21-5") %>%
+  select("region", "station", "sum", "geometry")
+
+
+shp2mtx <- function(df_shp){
+  df_shp_sp <- as(df_shp, Class = "Spatial")
+  matrix_shp <- 1*gTouches(df_shp_sp, byid = TRUE)
+  for (i in 1:nrow(matrix_shp)) {
+    for (j in 1:ncol(matrix_shp)) {
+      if (i > j) {
+        matrix_shp[i, j] <- 0
+      }
+    }
+  }
+  colnames(matrix_shp) <- df_shp_sp$region
+  rownames(matrix_shp) <- df_shp_sp$region
+  return(matrix_shp)
+}
+
+mtx2df_pairs <- function(mtx_shp){
+  df_pairs <- as_data_frame(graph_from_adjacency_matrix(mtx_shp))
+  return(df_pairs)
+}
+
+# matrix of all contiguous pairs
+mtx_morn <- shp2mtx(morning)
+# df of all contiguous pairs
+pairs <- mtx2df_pairs(mtx_morn)
+
+get_crimes_pairs <- function(df_pairs = pairs, df_timeofday){
+  df_shifts_stations <- df_timeofday %>%
+    st_drop_geometry() %>%
+    select(region, station)
+  morn_pairs_test <- left_join(df_pairs, df_shifts_stations, by = c("from" = "region")) %>%
+    rename(station_from = station) 
+  morn_pairs_test <- left_join(morn_pairs_test, df_shifts_stations, by = c("to" = "region")) %>%
+    rename(station_to = station)
+  morn_pairs_test <- morn_pairs_test %>%
+    filter(station_from == station_to)
+}
+
+get_crimes_pairs(morn_pairs)
+
+# keep only contiguous quadrants within same station
+df_shifts_stations <- morning %>%
+  st_drop_geometry() %>%
+  select(region, station)
+morn_pairs_test <- left_join(morn_pairs, df_shifts_stations, by = c("from" = "region")) %>%
+  rename(station_from = station) 
+morn_pairs_test <- left_join(morn_pairs_test, df_shifts_stations, by = c("to" = "region")) %>%
+  rename(station_to = station)
+morn_pairs_test <- morn_pairs_test %>%
+  filter(station_from == station_to)
+
+#find sum of crimes of pairs
+df_quads_sums <- morning %>%
+  st_drop_geometry() %>%
+  select(region, sum)
+morn_pairs_test <- left_join(morn_pairs_test, df_quads_sums, by = c("from" = "region")) %>%
+  rename(sum_from = sum)
+morn_pairs_test <- left_join(morn_pairs_test, df_quads_sums, by = c("to" = "region")) %>%
+  rename(sum_to = sum)
+morn_pairs_test <- morn_pairs_test %>%
+  mutate(sum_crimes = sum_from + sum_to) %>%
+  select(c(-sum_from, - sum_to)) %>%
+  arrange(sum_crimes)
+
+
+
+
+
+
+
+
 manrique <- df_shifts_avg %>%
   filter(station == "MANRIQUE")
 
@@ -29,43 +110,15 @@ matrix[, paste("teacher", c("height", "smart"), sep="_")] <-
   teachers[match(res$teacher_name, teachers$name), c("height","smart")]
 
 
-morning <- df_shifts_avg %>%
-  filter(shift == "5-13") %>%
-  select("region", "station", "sum", "geometry")
-afternoon <- df_shifts_avg %>%
-  filter(shift == "13-21") %>%
-  select("region", "station", "sum", "geometry")
-night <- df_shifts_avg %>%
-  filter(shift == "21-5") %>%
-  select("region", "station", "sum", "geometry")
-
-mtx_morn <- shp2mtx(morning)
-morn_pairs <- mtx2df_pairs(mtx_morn)
 
 
 
-shp2mtx <- function(df_shp){
-  df_shp_sp <- as(df_shp,Class = "Spatial")
-  matrix_shp <- 1*gTouches(df_shp_sp, byid=TRUE)
-  for (i in 1:nrow(matrix_shp)) {
-    for (j in 1:ncol(matrix_shp)) {
-      if (i>j) {
-        matrix_shp[i,j] <- 0
-      }
-    }
-  }
-  colnames(matrix_shp) <- df_shp_sp$region
-  rownames(matrix_shp) <- df_shp_sp$region
-  return(matrix_shp)
-}
 
-mtx2df_pairs <- function(mtx_shp){
-  df_pairs <- as_data_frame(graph_from_adjacency_matrix(mtx_shp))
-  return(df_pairs)
-}
 
-mtx_shp <- shp2mtx(df_shp)
-df_pairs <- mtx2df_pairs(mtx_shp)
+
+
+
+
 
 
 filter_pairs <- function(df_pairs, scode){
