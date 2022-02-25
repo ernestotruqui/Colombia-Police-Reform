@@ -43,8 +43,9 @@ mtx_morn <- shp2mtx(morning)
 # df of all contiguous pairs
 pairs <- mtx2df_pairs(mtx_morn)
 
-get_crimes_pairs <- function(df_pairs = pairs, df_timeofday){
-  df_shifts_stations <- df_timeofday %>%
+# function to filter only contiguous quads belonging to same station
+get_stations <- function(df_pairs = pairs, df_stations = morning){
+  df_shifts_stations <- df_stations %>%
     st_drop_geometry() %>%
     select(region, station)
   morn_pairs_test <- left_join(df_pairs, df_shifts_stations, by = c("from" = "region")) %>%
@@ -55,18 +56,9 @@ get_crimes_pairs <- function(df_pairs = pairs, df_timeofday){
     filter(station_from == station_to)
 }
 
-get_crimes_pairs(morn_pairs)
+# only quads within same station
+df_pairs_stations <- get_stations()
 
-# keep only contiguous quadrants within same station
-df_shifts_stations <- morning %>%
-  st_drop_geometry() %>%
-  select(region, station)
-morn_pairs_test <- left_join(morn_pairs, df_shifts_stations, by = c("from" = "region")) %>%
-  rename(station_from = station) 
-morn_pairs_test <- left_join(morn_pairs_test, df_shifts_stations, by = c("to" = "region")) %>%
-  rename(station_to = station)
-morn_pairs_test <- morn_pairs_test %>%
-  filter(station_from == station_to)
 
 #find sum of crimes of pairs
 df_quads_sums <- morning %>%
