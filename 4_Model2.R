@@ -1,8 +1,11 @@
-## run this after running 1.2_Preprocessing
 library(rgeos)
 library(igraph)
 library(ggplot2)
+library(tidyverse)
+library(sf)
 
+PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data"
+df_shifts_avg <- st_read(file.path(PATH, "df_shifts_avg.shp"))
 
 manrique <- df_shifts_avg %>%
   filter(station == "MANRIQUE")
