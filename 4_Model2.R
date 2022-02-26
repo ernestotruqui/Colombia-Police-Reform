@@ -81,13 +81,44 @@ get_crime_sum <- function(df_pairs_stations = df_pairs_stations, df_timeofday, s
     ungroup() %>%
     group_by(to) %>%
     filter(sum_crimes == min(sum_crimes),
-           !duplicated(to))
+           !duplicated(to)) %>%
+    ungroup()
   
 }
 
 morning_pairs <- get_crime_sum(df_pairs_stations = df_pairs_stations, df_timeofday = morning, shift = "5-13")
 afternoon_pairs <- get_crime_sum(df_pairs_stations = df_pairs_stations, df_timeofday = afternoon, shift = "13-21")
 night_pairs <- get_crime_sum(df_pairs_stations = df_pairs_stations, df_timeofday = night, shift = "21-5")
+
+# function that saves value on "from" column and drops any row with that repeated value in "to" column
+elimin_repeats <- function(df, index){
+  value <- as.character(df[index, 1])
+  df <- df %>%
+    filter(to != value)
+  value_to <- as.character(df[index, 2])
+  df <- df %>%
+    filter(from != value_to)
+  return(df)
+}
+
+for (i in 1:nrow(morning_pairs)) {
+  ifelse(i <= nrow(morning_pairs), 
+         morning_pairs <- elimin_repeats(df = morning_pairs, index = i),
+         break)
+}
+for (i in 1:nrow(afternoon_pairs)) {
+  ifelse(i <= nrow(afternoon_pairs), 
+         afternoon_pairs <- elimin_repeats(df = afternoon_pairs, index = i),
+         break)
+}
+for (i in 1:nrow(night_pairs)) {
+  ifelse(i <= nrow(night_pairs), 
+         night_pairs <- elimin_repeats(df = night_pairs, index = i),
+         break)
+}
+
+
+
 
 # function to make final df with all contiguous pairs of quads within same station across all shifts whose sum of crimes is below a given critical value
 into_final_df <- function(crit_value){
@@ -106,6 +137,7 @@ into_final_df <- function(crit_value){
 }
 
 df_all <- into_final_df(crit_value = 10)
+
 
 
 
