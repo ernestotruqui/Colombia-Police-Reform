@@ -74,6 +74,14 @@ get_crime_sum <- function(df_pairs_stations = df_pairs_stations, df_timeofday, s
            shift = shift) %>%
     select(c(-sum_from, - sum_to)) %>%
     arrange(sum_crimes) 
+  df_temp <- df_temp %>%
+    group_by(from) %>%
+    filter(sum_crimes == min(sum_crimes),
+           !duplicated(from)) %>%
+    ungroup() %>%
+    group_by(to) %>%
+    filter(sum_crimes == min(sum_crimes),
+           !duplicated(to))
   
 }
 
@@ -81,6 +89,7 @@ morning_pairs <- get_crime_sum(df_pairs_stations = df_pairs_stations, df_timeofd
 afternoon_pairs <- get_crime_sum(df_pairs_stations = df_pairs_stations, df_timeofday = afternoon, shift = "13-21")
 night_pairs <- get_crime_sum(df_pairs_stations = df_pairs_stations, df_timeofday = night, shift = "21-5")
 
+# function to make final df with all contiguous pairs of quads within same station across all shifts whose sum of crimes is below a given critical value
 into_final_df <- function(crit_value){
   critical_value <- crit_value
   df_all <- morning_pairs %>%
@@ -97,13 +106,6 @@ into_final_df <- function(crit_value){
 }
 
 df_all <- into_final_df(crit_value = 10)
-
-# merge all three morn aftn nght dfs into one
-# come up with CV to know which quads to cluster
-
-
-
-
 
 
 
