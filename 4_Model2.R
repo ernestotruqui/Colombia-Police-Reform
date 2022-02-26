@@ -59,20 +59,47 @@ get_stations <- function(df_pairs = pairs, df_stations = morning){
 # only quads within same station
 df_pairs_stations <- get_stations()
 
+# function to find sum of crimes by shift
+## input df_timeofday = morning/afternoon/night and shift = 5-13/13-21/21-5
+get_crime_sum <- function(df_pairs_stations = df_pairs_stations, df_timeofday, shift){
+  df_quads_sums <- df_timeofday %>%
+    st_drop_geometry() %>%
+    select(region, sum)
+  df_temp <- left_join(df_pairs_stations, df_quads_sums, by = c("from" = "region")) %>%
+    rename(sum_from = sum)
+  df_temp <- left_join(df_temp, df_quads_sums, by = c("to" = "region")) %>%
+    rename(sum_to = sum)
+  df_temp <- df_temp %>%
+    mutate(sum_crimes = sum_from + sum_to,
+           shift = shift) %>%
+    select(c(-sum_from, - sum_to)) %>%
+    arrange(sum_crimes) 
+  
+}
 
-#find sum of crimes of pairs
-df_quads_sums <- morning %>%
-  st_drop_geometry() %>%
-  select(region, sum)
-morn_pairs_test <- left_join(morn_pairs_test, df_quads_sums, by = c("from" = "region")) %>%
-  rename(sum_from = sum)
-morn_pairs_test <- left_join(morn_pairs_test, df_quads_sums, by = c("to" = "region")) %>%
-  rename(sum_to = sum)
-morn_pairs_test <- morn_pairs_test %>%
-  mutate(sum_crimes = sum_from + sum_to) %>%
-  select(c(-sum_from, - sum_to)) %>%
-  arrange(sum_crimes)
+morning_pairs <- get_crime_sum(df_pairs_stations = df_pairs_stations, df_timeofday = morning, shift = "5-13")
+afternoon_pairs <- get_crime_sum(df_pairs_stations = df_pairs_stations, df_timeofday = afternoon, shift = "13-21")
+night_pairs <- get_crime_sum(df_pairs_stations = df_pairs_stations, df_timeofday = night, shift = "21-5")
 
+into_final_df <- function(crit_value){
+  critical_value <- crit_value
+  df_all <- morning_pairs %>%
+    rbind(afternoon_pairs) %>%
+    rbind(night_pairs) %>%
+    filter(sum_crimes < critical_value)
+  df_geoms <- df_shifts_avg %>%
+    filter(shift == "5-13") %>%
+    select(region, geometry)
+  df_all <- left_join(df_all, df_geoms, by = c("from" = "region")) %>%
+    rename(geometry_from = geometry)
+  df_all <- left_join(df_all, df_geoms, by = c("to" = "region")) %>%
+    rename(geometry_to = geometry)
+}
+
+df_all <- into_final_df(crit_value = 10)
+
+# merge all three morn aftn nght dfs into one
+# come up with CV to know which quads to cluster
 
 
 
