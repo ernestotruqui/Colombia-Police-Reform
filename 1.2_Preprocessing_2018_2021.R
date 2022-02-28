@@ -1,8 +1,8 @@
 # Set Environment####
 ## set path and options####
 options(scipen = 999)
-PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
-#PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data" 
+#PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
+PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data" 
 
 ## load libraries####
 library(readxl)
