@@ -5,8 +5,8 @@ library(tidyverse)
 library(sf)
 
 
-PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
-# PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data"
+# PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
+ PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data"
 df_shifts_avg <- st_read(file.path(PATH, "df_shifts_avg.shp"))
 
 morning <- df_shifts_avg %>%
@@ -36,7 +36,7 @@ shp2mtx <- function(df_shp){
 }
 
 mtx2df_pairs <- function(mtx_shp){
-  df_pairs <- as_data_frame(get.edgelist(graph_from_adjacency_matrix(mtx_shp)))
+  df_pairs <- igraph::as_data_frame(graph_from_adjacency_matrix(mtx_shp))
   return(df_pairs)
 }
 
