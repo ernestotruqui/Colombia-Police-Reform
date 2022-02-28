@@ -5,8 +5,8 @@ library(tidyverse)
 library(sf)
 
 
-#PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
-PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data"
+PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
+# PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data"
 df_shifts_avg <- st_read(file.path(PATH, "df_shifts_avg.shp"))
 
 morning <- df_shifts_avg %>%
@@ -36,7 +36,7 @@ shp2mtx <- function(df_shp){
 }
 
 mtx2df_pairs <- function(mtx_shp){
-  df_pairs <- as_data_frame(graph_from_adjacency_matrix(mtx_shp))
+  df_pairs <- as_data_frame(get.edgelist(graph_from_adjacency_matrix(mtx_shp)))
   return(df_pairs)
 }
 
@@ -50,12 +50,14 @@ get_stations <- function(df_pairs = pairs, df_stations = morning){
   df_shifts_stations <- df_stations %>%
     st_drop_geometry() %>%
     select(region, station)
-  morn_pairs_test <- left_join(df_pairs, df_shifts_stations, by = c("from" = "region")) %>%
+  morn_pairs_test <- left_join(df_pairs, df_shifts_stations, by = c("V1" = "region")) %>%
     rename(station_from = station) 
-  morn_pairs_test <- left_join(morn_pairs_test, df_shifts_stations, by = c("to" = "region")) %>%
+  morn_pairs_test <- left_join(morn_pairs_test, df_shifts_stations, by = c("V2" = "region")) %>%
     rename(station_to = station)
   morn_pairs_test <- morn_pairs_test %>%
     filter(station_from == station_to)
+  colnames(morn_pairs_test)[c(1,2)] <- c('from','to')
+  return(morn_pairs_test)
 }
 
 # only quads within same station
