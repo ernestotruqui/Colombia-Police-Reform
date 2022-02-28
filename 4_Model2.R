@@ -149,4 +149,30 @@ which_to_merge <- function(){
 }
 
 df_final <- which_to_merge()
+
+
+#MERGE POLYGONS####
+#test on afternoon shift
+df_aftn <- df_final[which(df_final$shift=="13-21"),]
+df_aftn$group <- ifelse(is.na(df_aftn$merge_with)==TRUE,
+                        df_aftn$region,df_aftn$merge_with)
+
+join_by_group <- function(df_shp,cname){
+  group <- st_drop_geometry(df_shp)[,cname]
+  sp <- as(df_shp, Class = "Spatial")
+  reg4 <- unionSpatialPolygons(sp, group)
+  df_temp1 <- as(sp, "data.frame")
+  # sapply(df_temp1, class)
+  df_temp2 <- aggregate(df_temp1[,'sum'], list(group), sum)
+  row.names(df_temp2) <- as.character(df_temp2$Group.1)
+  sp2 <- SpatialPolygonsDataFrame(reg4, df_temp2)
   
+  # reformat
+  sp2 <- st_as_sf(sp2)
+  colnames(sp2) <- c('region','sum','geometry')
+  rownames(sp2) <- 1:nrow(sp2)
+  return(sp2) 
+}  
+
+df_aftn_m <- join_by_group(df_aftn,'group')
+plot(df_aftn_m)
