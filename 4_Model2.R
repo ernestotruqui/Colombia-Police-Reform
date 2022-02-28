@@ -2,11 +2,12 @@ library(rgeos)
 library(igraph)
 library(ggplot2)
 library(tidyverse)
+library(maptools)
 library(sf)
 library(maptools)
 
-# PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
- PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data"
+PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
+# PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data"
 df_shifts_avg <- st_read(file.path(PATH, "df_shifts_avg.shp"))
 
 morning <- df_shifts_avg %>%
@@ -156,11 +157,14 @@ df_final <- which_to_merge()
 df_aftn <- df_final[which(df_final$shift=="13-21"),]
 df_aftn$group <- ifelse(is.na(df_aftn$merge_with) == TRUE, df_aftn$region, df_aftn$merge_with)
 
-join_by_group <- function(df_shp, cname){
-  group <- st_drop_geometry(df_shp)[, cname]
+
+join_by_group <- function(df_shp,cname){
+  
+  group <- st_drop_geometry(df_shp)[,cname]
   sp <- as(df_shp, Class = "Spatial")
   reg4 <- unionSpatialPolygons(sp, group)
   df_temp1 <- as(sp, "data.frame")
+  
   # sapply(df_temp1, class)
   df_temp2 <- aggregate(df_temp1[,'sum'], list(group), sum)
   row.names(df_temp2) <- as.character(df_temp2$Group.1)
@@ -170,10 +174,24 @@ join_by_group <- function(df_shp, cname){
   sp2 <- st_as_sf(sp2)
   colnames(sp2) <- c('region', 'sum', 'geometry')
   rownames(sp2) <- 1:nrow(sp2)
+  
+  # filter merged ones
+  sp2 <- sp2[which(sp2$region %in% unique(df_shp$merge_with)),]
+  
   return(sp2) 
 }  
 
+ HEAD
 df_aftn_m <- join_by_group(df_aftn, 'group')
 df_aftn_m <- join_by_group(df_aftn[-which(is.na(df_aftn$merge_with)),],'group')
 plot(df_aftn_m)
+
+df_aftn_m <- join_by_group(df_aftn,'group')
+
+#PLOTTING####
+
+ggplot() +
+  geom_sf(data = df_aftn)+
+  geom_sf(data = df_aftn_m, colour = 'red', fill=NA)
+
 
