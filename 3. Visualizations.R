@@ -16,7 +16,7 @@ library(ggeasy)
 
 PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
 #PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data" 
-df_shift_test <- st_read(file.path(PATH, "df_shift.shp")) 
+df_shift <- st_read(file.path(PATH, "df_shift.shp")) 
 
 ## Histograms ####
 
@@ -171,7 +171,6 @@ map_simple <- ggplot() +
 ggsave(filename = "map_simple.png",
        plot = map_simple,
        path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
-
 
 map_crimes_quad_2019_morn <- ggplot() +
   geom_sf(data = df_shift[df_shift$shift=='5-13',],

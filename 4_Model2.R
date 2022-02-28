@@ -4,7 +4,7 @@ library(ggplot2)
 library(tidyverse)
 library(maptools)
 library(sf)
-
+library(maptools)
 
 PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
 # PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data"
@@ -155,8 +155,8 @@ df_final <- which_to_merge()
 #MERGE POLYGONS####
 #test on afternoon shift
 df_aftn <- df_final[which(df_final$shift=="13-21"),]
-df_aftn$group <- ifelse(is.na(df_aftn$merge_with)==TRUE,
-                        df_aftn$region,df_aftn$merge_with)
+df_aftn$group <- ifelse(is.na(df_aftn$merge_with) == TRUE, df_aftn$region, df_aftn$merge_with)
+
 
 join_by_group <- function(df_shp,cname){
   
@@ -172,7 +172,7 @@ join_by_group <- function(df_shp,cname){
   
   # reformat
   sp2 <- st_as_sf(sp2)
-  colnames(sp2) <- c('region','sum','geometry')
+  colnames(sp2) <- c('region', 'sum', 'geometry')
   rownames(sp2) <- 1:nrow(sp2)
   
   # filter merged ones
