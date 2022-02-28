@@ -1,8 +1,8 @@
 # Set Environment####
 ## set path and options####
 options(scipen = 999)
-#PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
-PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data" 
+PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
+#PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data" 
 
 ## load libraries####
 library(readxl)
@@ -121,10 +121,11 @@ df_shp_raw <- st_read(file.path(PATH, '07_Cuadrantes'))
 df_shp_stations <- df_shp_raw %>%
   st_drop_geometry() %>%
   select(NRO_CUADRA, ESTACION)
+
+df_shp <- clean_shp(st_read(file.path(PATH, '07_Cuadrantes')))
 df_geoms <- df_shp %>%
   select(region, geometry)
 
-df_shp <- clean_shp(st_read(file.path(PATH, '07_Cuadrantes')))
 df_crime_18 <- p2p(df_crime_18, df_shp)
 df_crime_19 <- p2p(df_crime_19, df_shp)
 df_crime_20 <- p2p(df_crime_20, df_shp)
@@ -198,4 +199,4 @@ df_shifts_avg$rcpp <- as.numeric(unlist(crime_per_police(df_shifts_avg, 'sum', '
 df_shifts_avg <- df_shifts_avg %>%
   dplyr::rename(station = ESTACION)
 #save dfs
-st_write(df_shifts_avg, "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data/df_shifts_avg.shp", append = F, delete_layer = T)
+st_write(df_shifts_avg, file.path(PATH, 'df_shifts_avg.shp'), append = F, delete_layer = T)
