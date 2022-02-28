@@ -174,8 +174,6 @@ join_by_group <- function(df_shp, cname){
 }  
 
 df_aftn_m <- join_by_group(df_aftn, 'group')
+df_aftn_m <- join_by_group(df_aftn[-which(is.na(df_aftn$merge_with)),],'group')
 plot(df_aftn_m)
 
-ggplot() +
-  geom_sf(data = morning, 
-          aes(fill = sum))
