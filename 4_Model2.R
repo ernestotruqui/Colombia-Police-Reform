@@ -5,8 +5,8 @@ library(tidyverse)
 library(sf)
 
 
-PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
-# PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data"
+# PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
+ PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data"
 df_shifts_avg <- st_read(file.path(PATH, "df_shifts_avg.shp"))
 
 morning <- df_shifts_avg %>%
