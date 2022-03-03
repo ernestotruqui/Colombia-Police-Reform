@@ -1,4 +1,5 @@
-library(os)
+#install.packages("os")
+#library(os)
 library(rgeos)
 library(igraph)
 library(ggplot2)
@@ -9,8 +10,8 @@ library(maptools)
 library(cowplot)
 
 
-PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
-# PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data"
+#PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
+ PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data"
 df_shifts_avg <- st_read(file.path(PATH, "df_shifts_avg.shp"))
 morning <- df_shifts_avg %>%
   filter(shift == "5-13") %>%
@@ -233,37 +234,54 @@ part2 <- function(df_final,shift) {
   df_temp_m$rcpp <- crime_per_police(df_temp_m, 'sum', 'rn_f_pl')
   
   # title
-  ltitle <- ifelse(shift=='5-13',"Morning shift (5:00 - 13:00)",
-                   ifelse(shift=='13-21',"Afternoon shift (13:00 - 21:00)",
+  ltitle <- ifelse(shift == '5-13',"Morning shift (5:00 - 13:00)",
+                   ifelse(shift == '13-21',"Afternoon shift (13:00 - 21:00)",
                           "Night shift (21:00 - 5:00)"))
   
   # plotting cpp
-  p_cpp_before <- plot_cpp(df_temp,df_m_temp,shift)
-  p_cpp_after <- plot_cpp(df_temp_m,df_m_temp,shift)
+  p_cpp_before <- plot_cpp(df_temp, df_m_temp,shift)
+  p_cpp_after <- plot_cpp(df_temp_m, df_m_temp,shift)
   
   ptitle <- ggplot() + 
     labs(title = paste('Crimes per Officer in ',ltitle,sep = ''), 
          subtitle = "before (left) and after (right) clustering")
-  p_cpp <- plot_grid(ptitle,plot_grid(p_cpp_before, p_cpp_after),
-                     ncol=1, rel_heights=c(0.1, 1))
+  p_cpp <- plot_grid(ptitle, plot_grid(p_cpp_before, p_cpp_after),
+                     ncol = 1, rel_heights = c(0.1, 1))
   
   # plotting n_of_police
-  p_nofp_before <- plot_nofp(df_temp,df_m_temp,shift)
-  p_nofp_after <- plot_nofp(df_temp_m,df_m_temp,shift)
+  p_nofp_before <- plot_nofp(df_temp, df_m_temp,shift)
+  p_nofp_after <- plot_nofp(df_temp_m, df_m_temp,shift)
   
   ptitle <- ggplot() + 
-    labs(title = paste('Number of Officers in ',ltitle,sep = ''), 
+    labs(title = paste('Number of Officers in ',ltitle, sep = ''), 
          subtitle = "before (left) and after (right) clustering")
   p_nofp <- plot_grid(ptitle,plot_grid(p_nofp_before, p_nofp_after),
-                      ncol=1, rel_heights=c(0.1, 1))
+                      ncol = 1, rel_heights = c(0.1, 1))
   
   # gird
-  p <- plot_grid(p_cpp,p_nofp,ncol = 1)
+  p <- plot_grid(p_cpp, p_nofp, ncol = 1)
   
   return(p)
 }
 
 ### run ####
 p_morning <- part2(df_final,'5-13')
-# p_afternoon <- part2(df_final,'13-21')
-# p_night <- part2(df_final,'21-5')
+ggsave(filename = "p_morning.png",
+       plot = p_morning,
+       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+
+p_afternoon <- part2(df_final,'13-21')
+ggsave(filename = "p_afternoon.png",
+       plot = p_afternoon,
+       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+
+p_night <- part2(df_final,'21-5')
+ggsave(filename = "p_night.png",
+       plot = p_night,
+       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+
+
+
+
+
+
