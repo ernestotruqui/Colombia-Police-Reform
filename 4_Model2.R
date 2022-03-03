@@ -1,3 +1,4 @@
+#install.packages("os")
 library(os)
 library(rgeos)
 library(igraph)
@@ -9,8 +10,8 @@ library(maptools)
 library(cowplot)
 
 
-PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
-# PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data"
+#PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
+ PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data"
 df_shifts_avg <- st_read(file.path(PATH, "df_shifts_avg.shp"))
 
 morning <- df_shifts_avg %>%
@@ -153,13 +154,16 @@ which_to_merge <- function(){
 }
 
 df_final <- which_to_merge()
+
+
+
 #PART2####
 rm(list= ls()[!(ls() %in% c('df_final','PATH'))])
 
 ##fxns####
-join_by_group <- function(df_shp,cname){
+join_by_group <- function(df_shp, cname){
   
-  group <- st_drop_geometry(df_shp)[,cname]
+  group <- st_drop_geometry(df_shp)[, cname]
   sp <- as(df_shp, Class = "Spatial")
   reg4 <- unionSpatialPolygons(sp, group)
   df_temp1 <- as(sp, "data.frame")
@@ -197,7 +201,7 @@ crime_per_police <- function(df, crime_type, n_of_police = ''){
   return(df$temp)
 }
 
-plot_cpp <- function(df_temp,df_m_temp,shift){
+plot_cpp <- function(df_temp, df_m_temp, shift){
   ltitle <- ifelse(shift=='5-13',"Morning shift (5:00 - 13:00)",
                   ifelse(shift=='13-21',"Afternoon shift (13:00 - 21:00)",
                          "Night shift (21:00 - 5:00)"))
@@ -214,10 +218,19 @@ plot_cpp <- function(df_temp,df_m_temp,shift){
   return(p_cpp)
 }
 
+# HEAD
+
+df_aftn_m <- join_by_group(df_final, 'group')  # doesn't run
+
+df_aftn_m <- join_by_group(df_aftn, 'group')
+df_aftn_m <- join_by_group(df_aftn[-which(is.na(df_aftn$merge_with)),],'group')
+plot(df_aftn_m)
+#
 plot_nofp <- function(df_temp,df_m_temp,shift){
   ltitle <- ifelse(shift=='5-13',"Morning shift (5:00 - 13:00)",
                    ifelse(shift=='13-21',"Afternoon shift (13:00 - 21:00)",
                           "Night shift (21:00 - 5:00)"))
+# aaf541bdac59984c0043298e9fd9231797a39964
 
   p_nofp <- ggplot() +
     geom_sf(data = df_temp, aes(fill = rn_f_pl))+
