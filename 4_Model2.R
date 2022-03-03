@@ -184,13 +184,13 @@ crime_per_police <- function(df, crime_type, n_of_police = ''){
 }
 
 plot_cpp <- function(df_temp, df_m_temp, shift){
-  ltitle <- ifelse(shift=='5-13',"Morning shift (5:00 - 13:00)",
-                   ifelse(shift=='13-21',"Afternoon shift (13:00 - 21:00)",
+  ltitle <- ifelse(shift =='5-13',"Morning shift (5:00 - 13:00)",
+                   ifelse(shift == '13-21', "Afternoon shift (13:00 - 21:00)",
                           "Night shift (21:00 - 5:00)"))
   
   p_cpp <- ggplot() +
     geom_sf(data = df_temp, aes(fill = rcpp))+
-    geom_sf(data = df_m_temp, colour = 'red', fill=NA)+
+    geom_sf(data = df_m_temp, colour = 'red', fill = NA)+
     labs(fill = "Crimes per Officer",
          color = "Crimes per Officer") +
     theme(plot.title = element_text(hjust = 0.5, size = 10)) +
@@ -200,7 +200,7 @@ plot_cpp <- function(df_temp, df_m_temp, shift){
   return(p_cpp)
 }
 
-plot_nofp <- function(df_temp,df_m_temp,shift){
+plot_nofp <- function(df_temp, df_m_temp, shift){
   ltitle <- ifelse(shift=='5-13',"Morning shift (5:00 - 13:00)",
                    ifelse(shift=='13-21',"Afternoon shift (13:00 - 21:00)",
                           "Night shift (21:00 - 5:00)"))
@@ -240,8 +240,8 @@ part2 <- function(df_final, shift) {
                           "Night shift (21:00 - 5:00)"))
   
   # plotting cpp
-  p_cpp_before <- plot_cpp(df_temp, df_m_temp,shift)
-  p_cpp_after <- plot_cpp(df_temp_m, df_m_temp,shift)
+  p_cpp_before <- plot_cpp(df_temp, df_m_temp, shift)
+  p_cpp_after <- plot_cpp(df_temp_m, df_m_temp, shift)
   
   ptitle <- ggplot() + 
     labs(title = paste('Crimes per Officer in ', ltitle, sep = ''), 
@@ -313,5 +313,67 @@ p_night_20 <- part2(df_final_20,'21-5')
 ggsave(filename = "p_night_20.png",
        plot = p_night_20,
        path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+
+
+
+
+
+
+df_all_48 <- into_final_df(crit_value = 48.25)
+
+# function to indicate which quads to merge together
+which_to_merge_48 <- function(){
+  to_merge <- df_all_48 %>%
+    rename(merge_with = to) %>%
+    select(from, shift, merge_with, geometry_to)
+  df_final <- left_join(df_shifts_avg, to_merge, by = c("region" = "from", "shift"))
+}
+
+df_final_48 <- which_to_merge_48()  
+p_morning_48 <- part2(df_final_48, '5-13')
+ggsave(filename = "p_morning_48.png",
+       plot = p_morning_48,
+       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+
+p_afternoon_48 <- part2(df_final_48,'13-21')
+ggsave(filename = "p_afternoon_48.png",
+       plot = p_afternoon_48,
+       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+
+p_night_48 <- part2(df_final_48,'21-5')
+ggsave(filename = "p_night_48.png",
+       plot = p_night_48,
+       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+
+
+
+
+
+df_all_78 <- into_final_df(crit_value = 78)
+
+# function to indicate which quads to merge together
+which_to_merge_78 <- function(){
+  to_merge <- df_all_78 %>%
+    rename(merge_with = to) %>%
+    select(from, shift, merge_with, geometry_to)
+  df_final <- left_join(df_shifts_avg, to_merge, by = c("region" = "from", "shift"))
+}
+
+df_final_78 <- which_to_merge_78()  
+p_morning_78 <- part2(df_final_78, '5-13')
+ggsave(filename = "p_morning_78.png",
+       plot = p_morning_78,
+       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+
+p_afternoon_78 <- part2(df_final_78,'13-21')
+ggsave(filename = "p_afternoon_78.png",
+       plot = p_afternoon_78,
+       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+
+p_night_78 <- part2(df_final_78,'21-5')
+ggsave(filename = "p_night_78.png",
+       plot = p_night_78,
+       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+
 
   
