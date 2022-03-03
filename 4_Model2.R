@@ -1,4 +1,3 @@
-#install.packages("os")
 library(os)
 library(rgeos)
 library(igraph)
@@ -10,10 +9,9 @@ library(maptools)
 library(cowplot)
 
 
-#PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
- PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data"
+PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
+# PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data"
 df_shifts_avg <- st_read(file.path(PATH, "df_shifts_avg.shp"))
-
 morning <- df_shifts_avg %>%
   filter(shift == "5-13") %>%
   select("region", "station", "sum", "geometry")
@@ -23,8 +21,6 @@ afternoon <- df_shifts_avg %>%
 night <- df_shifts_avg %>%
   filter(shift == "21-5") %>%
   select("region", "station", "sum", "geometry")
-
-
 shp2mtx <- function(df_shp){
   df_shp_sp <- as(df_shp, Class = "Spatial")
   matrix_shp <- 1*gTouches(df_shp_sp, byid = TRUE)
@@ -39,17 +35,14 @@ shp2mtx <- function(df_shp){
   rownames(matrix_shp) <- df_shp_sp$region
   return(matrix_shp)
 }
-
 mtx2df_pairs <- function(mtx_shp){
   df_pairs <- igraph::as_data_frame(graph_from_adjacency_matrix(mtx_shp))
   return(df_pairs)
 }
-
 # matrix of all contiguous pairs
 mtx_morn <- shp2mtx(morning)
 # df of all contiguous pairs
 pairs <- mtx2df_pairs(mtx_morn)
-
 # function to filter only contiguous quads belonging to same station
 get_stations <- function(df_pairs = pairs, df_stations = morning){
   df_shifts_stations <- df_stations %>%
@@ -62,10 +55,8 @@ get_stations <- function(df_pairs = pairs, df_stations = morning){
   morn_pairs_test <- morn_pairs_test %>%
     filter(station_from == station_to)
 }
-
 # only quads within same station
 df_pairs_stations <- get_stations()
-
 # function to find sum of crimes by shift
 ## input df_timeofday = morning/afternoon/night and shift = 5-13/13-21/21-5
 get_crime_sum <- function(df_pairs_stations = df_pairs_stations, df_timeofday, shift){
@@ -92,11 +83,9 @@ get_crime_sum <- function(df_pairs_stations = df_pairs_stations, df_timeofday, s
     ungroup()
   
 }
-
 morning_pairs <- get_crime_sum(df_pairs_stations = df_pairs_stations, df_timeofday = morning, shift = "5-13")
 afternoon_pairs <- get_crime_sum(df_pairs_stations = df_pairs_stations, df_timeofday = afternoon, shift = "13-21")
 night_pairs <- get_crime_sum(df_pairs_stations = df_pairs_stations, df_timeofday = night, shift = "21-5")
-
 # function that saves value on "from" column and drops any row with that repeated value in "to" column
 elimin_repeats <- function(df, index){
   value <- as.character(df[index, 1])
@@ -107,7 +96,6 @@ elimin_repeats <- function(df, index){
     filter(from != value_to)
   return(df)
 }
-
 for (i in 1:nrow(morning_pairs)) {
   ifelse(i <= nrow(morning_pairs), 
          morning_pairs <- elimin_repeats(df = morning_pairs, index = i),
@@ -123,10 +111,6 @@ for (i in 1:nrow(night_pairs)) {
          night_pairs <- elimin_repeats(df = night_pairs, index = i),
          break)
 }
-
-
-
-
 # function to make final df with all contiguous pairs of quads within same station across all shifts whose sum of crimes is below a given critical value
 into_final_df <- function(crit_value){
   critical_value <- crit_value
@@ -142,9 +126,7 @@ into_final_df <- function(crit_value){
   df_all <- left_join(df_all, df_geoms, by = c("to" = "region")) %>%
     rename(geometry_to = geometry)
 }
-
 df_all <- into_final_df(crit_value = 10)
-
 # function to indicate which quads to merge together
 which_to_merge <- function(){
   to_merge <- df_all %>%
@@ -155,15 +137,13 @@ which_to_merge <- function(){
 
 df_final <- which_to_merge()
 
-
-
 #PART2####
 rm(list= ls()[!(ls() %in% c('df_final','PATH'))])
 
 ##fxns####
-join_by_group <- function(df_shp, cname){
+join_by_group <- function(df_shp,cname){
   
-  group <- st_drop_geometry(df_shp)[, cname]
+  group <- st_drop_geometry(df_shp)[,cname]
   sp <- as(df_shp, Class = "Spatial")
   reg4 <- unionSpatialPolygons(sp, group)
   df_temp1 <- as(sp, "data.frame")
@@ -201,11 +181,11 @@ crime_per_police <- function(df, crime_type, n_of_police = ''){
   return(df$temp)
 }
 
-plot_cpp <- function(df_temp, df_m_temp, shift){
+plot_cpp <- function(df_temp,df_m_temp,shift){
   ltitle <- ifelse(shift=='5-13',"Morning shift (5:00 - 13:00)",
-                  ifelse(shift=='13-21',"Afternoon shift (13:00 - 21:00)",
-                         "Night shift (21:00 - 5:00)"))
-
+                   ifelse(shift=='13-21',"Afternoon shift (13:00 - 21:00)",
+                          "Night shift (21:00 - 5:00)"))
+  
   p_cpp <- ggplot() +
     geom_sf(data = df_temp, aes(fill = rcpp))+
     geom_sf(data = df_m_temp, colour = 'red', fill=NA)+
@@ -218,20 +198,10 @@ plot_cpp <- function(df_temp, df_m_temp, shift){
   return(p_cpp)
 }
 
-# HEAD
-
-df_aftn_m <- join_by_group(df_final, 'group')  # doesn't run
-
-df_aftn_m <- join_by_group(df_aftn, 'group')
-df_aftn_m <- join_by_group(df_aftn[-which(is.na(df_aftn$merge_with)),],'group')
-plot(df_aftn_m)
-#
 plot_nofp <- function(df_temp,df_m_temp,shift){
   ltitle <- ifelse(shift=='5-13',"Morning shift (5:00 - 13:00)",
                    ifelse(shift=='13-21',"Afternoon shift (13:00 - 21:00)",
                           "Night shift (21:00 - 5:00)"))
-# aaf541bdac59984c0043298e9fd9231797a39964
-
   p_nofp <- ggplot() +
     geom_sf(data = df_temp, aes(fill = rn_f_pl))+
     geom_sf(data = df_m_temp, colour = 'red', fill=NA)+
@@ -253,7 +223,7 @@ part2 <- function(df_final,shift) {
   # join by group
   df_temp_m <- join_by_group(df_temp,'group')
   df_m_temp <- df_temp_m[which(df_temp_m$region %in% unique(df_temp$merge_with)),]
-
+  
   # redistribute
   df_temp_m$n_f_plc <- 2
   df_temp_m$rn_f_pl <- redistribute(df_temp_m, 'sum')
@@ -285,7 +255,7 @@ part2 <- function(df_final,shift) {
     labs(title = paste('Number of Officers in ',ltitle,sep = ''), 
          subtitle = "before (left) and after (right) clustering")
   p_nofp <- plot_grid(ptitle,plot_grid(p_nofp_before, p_nofp_after),
-                     ncol=1, rel_heights=c(0.1, 1))
+                      ncol=1, rel_heights=c(0.1, 1))
   
   # gird
   p <- plot_grid(p_cpp,p_nofp,ncol = 1)
@@ -297,6 +267,3 @@ part2 <- function(df_final,shift) {
 p_morning <- part2(df_final,'5-13')
 # p_afternoon <- part2(df_final,'13-21')
 # p_night <- part2(df_final,'21-5')
-
-
-
