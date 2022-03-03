@@ -1,3 +1,4 @@
+library(os)
 library(rgeos)
 library(igraph)
 library(ggplot2)
@@ -5,6 +6,8 @@ library(tidyverse)
 library(maptools)
 library(sf)
 library(maptools)
+library(cowplot)
+
 
 PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
 # PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data"
@@ -150,14 +153,10 @@ which_to_merge <- function(){
 }
 
 df_final <- which_to_merge()
+#PART2####
+rm(list= ls()[!(ls() %in% c('df_final','PATH'))])
 
-
-#MERGE POLYGONS####
-#test on afternoon shift
-df_aftn <- df_final[which(df_final$shift=="13-21"),]
-df_aftn$group <- ifelse(is.na(df_aftn$merge_with) == TRUE, df_aftn$region, df_aftn$merge_with)
-
-
+##fxns####
 join_by_group <- function(df_shp,cname){
   
   group <- st_drop_geometry(df_shp)[,cname]
@@ -176,22 +175,121 @@ join_by_group <- function(df_shp,cname){
   rownames(sp2) <- 1:nrow(sp2)
   
   # filter merged ones
-  sp2 <- sp2[which(sp2$region %in% unique(df_shp$merge_with)),]
+  # sp2 <- sp2[which(sp2$region %in% unique(df_shp$merge_with)),]
   
   return(sp2) 
-}  
+} 
 
+redistribute <- function(df, colname){
+  df$temp <- 1 + (((522 - (nrow(df))) * st_drop_geometry(df)[,colname] / sum(st_drop_geometry(df)[,colname])))
+  df$temp <- round(df$temp)
+  return(df$temp)
+}
+
+crime_per_police <- function(df, crime_type, n_of_police = ''){
+  df <- st_drop_geometry(df)
+  if (n_of_police == '') {
+    df$temp <- df[,crime_type] / 2
+  }
+  else {
+    df$temp <- df[,crime_type] / df[,n_of_police]
+  }
+  return(df$temp)
+}
+
+plot_cpp <- function(df_temp,df_m_temp,shift){
+  ltitle <- ifelse(shift=='5-13',"Morning shift (5:00 - 13:00)",
+                  ifelse(shift=='13-21',"Afternoon shift (13:00 - 21:00)",
+                         "Night shift (21:00 - 5:00)"))
+
+  p_cpp <- ggplot() +
+    geom_sf(data = df_temp, aes(fill = rcpp))+
+    geom_sf(data = df_m_temp, colour = 'red', fill=NA)+
+    labs(fill = "Crimes per Officer",
+         color = "Crimes per Officer") +
+    theme(plot.title = element_text(hjust = 0.5, size = 10)) +
+    scale_fill_viridis_c(option = "inferno", limits = c(0, 30)) +
+    scale_color_viridis_c(option = "inferno", limits = c(0, 30)) 
+  
+  return(p_cpp)
+}
+
+# HEAD
 
 df_aftn_m <- join_by_group(df_aftn, 'group')
 df_aftn_m <- join_by_group(df_aftn[-which(is.na(df_aftn$merge_with)),],'group')
 plot(df_aftn_m)
+#
+plot_nofp <- function(df_temp,df_m_temp,shift){
+  ltitle <- ifelse(shift=='5-13',"Morning shift (5:00 - 13:00)",
+                   ifelse(shift=='13-21',"Afternoon shift (13:00 - 21:00)",
+                          "Night shift (21:00 - 5:00)"))
+# aaf541bdac59984c0043298e9fd9231797a39964
 
-df_aftn_m <- join_by_group(df_aftn,'group')
+  p_nofp <- ggplot() +
+    geom_sf(data = df_temp, aes(fill = rn_f_pl))+
+    geom_sf(data = df_m_temp, colour = 'red', fill=NA)+
+    labs(fill = "Number of Officers",
+         color = "Number of Officers") +
+    theme(plot.title = element_text(hjust = 0.5, size = 10)) +
+    scale_fill_viridis_c(option = "inferno", limits = c(1, 6)) +
+    scale_color_viridis_c(option = "inferno", limits = c(1, 6)) 
+  
+  return(p_nofp)
+}
 
-#PLOTTING####
+part2 <- function(df_final,shift) {
+  
+  # sample the shift
+  df_temp <- df_final[which(df_final$shift==shift),]
+  df_temp$group <- ifelse(is.na(df_temp$merge_with) == TRUE, df_temp$region, df_temp$merge_with)
+  
+  # join by group
+  df_temp_m <- join_by_group(df_temp,'group')
+  df_m_temp <- df_temp_m[which(df_temp_m$region %in% unique(df_temp$merge_with)),]
 
-ggplot() +
-  geom_sf(data = df_aftn)+
-  geom_sf(data = df_aftn_m, colour = 'red', fill=NA)
+  # redistribute
+  df_temp_m$n_f_plc <- 2
+  df_temp_m$rn_f_pl <- redistribute(df_temp_m, 'sum')
+  
+  # crime per police
+  df_temp_m$cpp <- crime_per_police(df_temp_m, 'sum','n_f_plc')
+  df_temp_m$rcpp <- crime_per_police(df_temp_m, 'sum', 'rn_f_pl')
+  
+  # title
+  ltitle <- ifelse(shift=='5-13',"Morning shift (5:00 - 13:00)",
+                   ifelse(shift=='13-21',"Afternoon shift (13:00 - 21:00)",
+                          "Night shift (21:00 - 5:00)"))
+  
+  # plotting cpp
+  p_cpp_before <- plot_cpp(df_temp,df_m_temp,shift)
+  p_cpp_after <- plot_cpp(df_temp_m,df_m_temp,shift)
+  
+  ptitle <- ggplot() + 
+    labs(title = paste('Crimes per Officer in ',ltitle,sep = ''), 
+         subtitle = "before (left) and after (right) clustering")
+  p_cpp <- plot_grid(ptitle,plot_grid(p_cpp_before, p_cpp_after),
+                     ncol=1, rel_heights=c(0.1, 1))
+  
+  # plotting n_of_police
+  p_nofp_before <- plot_nofp(df_temp,df_m_temp,shift)
+  p_nofp_after <- plot_nofp(df_temp_m,df_m_temp,shift)
+  
+  ptitle <- ggplot() + 
+    labs(title = paste('Number of Officers in ',ltitle,sep = ''), 
+         subtitle = "before (left) and after (right) clustering")
+  p_nofp <- plot_grid(ptitle,plot_grid(p_nofp_before, p_nofp_after),
+                     ncol=1, rel_heights=c(0.1, 1))
+  
+  # gird
+  p <- plot_grid(p_cpp,p_nofp,ncol = 1)
+  
+  return(p)
+}
+
+### run ####
+p_morning <- part2(df_final,'5-13')
+# p_afternoon <- part2(df_final,'13-21')
+# p_night <- part2(df_final,'21-5')
 
 
