@@ -194,8 +194,12 @@ plot_cpp <- function(df_temp, df_m_temp, shift){
     labs(fill = "Crimes per Officer",
          color = "Crimes per Officer") +
     theme(plot.title = element_text(hjust = 0.5, size = 10)) +
-    scale_fill_viridis_c(option = "inferno", limits = c(0, 50)) +
-    scale_color_viridis_c(option = "inferno", limits = c(0, 50)) 
+    scale_fill_viridis_c(option = "inferno", limits = c(0, 80)) +
+    scale_color_viridis_c(option = "inferno", limits = c(0, 80)) +
+    theme(axis.ticks.x = element_blank(),
+          axis.text.x = element_blank(),
+          axis.ticks.y = element_blank(),
+          axis.text.y = element_blank())
   
   return(p_cpp)
 }
@@ -240,14 +244,35 @@ part2 <- function(df_final, shift) {
                           "Night shift (21:00 - 5:00)"))
   
   # plotting cpp
-  p_cpp_before <- plot_cpp(df_temp, df_m_temp, shift)
-  p_cpp_after <- plot_cpp(df_temp_m, df_m_temp, shift)
+  p_status_quo <- ggplot() +
+    geom_sf(data = df_temp[df_temp$shift == shift,],
+            aes(fill = cpp)) +
+    geom_sf(data = df_m_temp, colour = 'red', fill = NA)+
+    labs(fill = "Crimes per Officer",
+         color = "Crimes per Officer") +
+    scale_fill_viridis_c(option = "inferno", limits = c(0, 80)) +
+    scale_color_viridis_c(option = "inferno", limits = c(0, 80)) +
+    labs(subtitle = "Status Quo") +
+    theme(plot.subtitle = element_text(hjust = 0.5, size = 15),
+          axis.ticks.x = element_blank(),
+          axis.text.x = element_blank(),
+          axis.ticks.y = element_blank(),
+          axis.text.y = element_blank())
+  p_cpp_before <- plot_cpp(df_temp, df_m_temp, shift) +
+    labs(title = "Simple Redistribution") +
+    theme(plot.title = element_text(hjust = 0.5, size = 15))
+  p_cpp_after <- plot_cpp(df_temp_m, df_m_temp, shift) +
+    labs(subtitle = "Dynamic Quadrant Redistribution") +
+    theme(plot.subtitle = element_text(hjust = 0.5, size = 15))
   
-  ptitle <- ggplot() + 
-    labs(title = paste('Crimes per Officer in ', ltitle, sep = ''), 
-         subtitle = "before (left) and after (right) clustering")
-  p_cpp <- plot_grid(ptitle, plot_grid(p_cpp_before, p_cpp_after),
-                     ncol = 1, rel_heights = c(0.1, 1))
+  #ptitle <- ggplot() + 
+  #  labs(title = paste('Crimes per Officer in ', ltitle, sep = ''), 
+  #       subtitle = "before (left) and after (right) clustering")
+  #p_cpp <- plot_grid(ptitle, plot_grid(p_cpp_before, p_cpp_after),
+  #                   ncol = 1, rel_heights = c(0.1, 1))
+  #
+  p_cpp <- plot_grid(p_status_quo, p_cpp_before, p_cpp_after,
+            ncol = 3)
   
   # plotting n_of_police
   p_nofp_before <- plot_nofp(df_temp, df_m_temp, shift)
@@ -260,13 +285,84 @@ part2 <- function(df_final, shift) {
                       ncol = 1, rel_heights = c(0.1, 1))
   
   # grid
-  p <- plot_grid(p_cpp, p_nofp, ncol = 1)
+  #p <- plot_grid(p_cpp, p_nofp, ncol = 1)
   
-  return(p)
+  return(p_cpp)
+  #return(p_nofp)
 }
 
+compare_redis <- function(df_final, shift) {
+    # sample the shift
+  df_temp <- df_final[which(df_final$shift == shift),]
+  df_temp$group <- ifelse(is.na(df_temp$merge_with) == TRUE, df_temp$region, df_temp$merge_with)
+  
+  # join by group
+  df_temp_m <- join_by_group(df_temp, 'group')
+  df_m_temp <- df_temp_m[which(df_temp_m$region %in% unique(df_temp$merge_with)),]
+  
+  # redistribute
+  df_temp_m$n_f_plc <- 2
+  df_temp_m$rn_f_pl <- redistribute(df_temp_m, 'sum')
+  
+  # crime per police
+  df_temp_m$cpp <- crime_per_police(df_temp_m, 'sum','n_f_plc')
+  df_temp_m$rcpp <- crime_per_police(df_temp_m, 'sum', 'rn_f_pl')
+  
+  plot_cpp <- function(df_temp, df_m_temp, shift){
+    ltitle <- ifelse(shift =='5-13',"Morning shift (5:00 - 13:00)",
+                     ifelse(shift == '13-21', "Afternoon shift (13:00 - 21:00)",
+                            "Night shift (21:00 - 5:00)"))
+    
+    p_cpp <- ggplot() +
+      geom_sf(data = df_temp, aes(fill = rcpp))+
+      geom_sf(data = df_m_temp, colour = 'red', fill = NA)+
+      labs(fill = "Crimes per Officer",
+           color = "Crimes per Officer") +
+      theme(plot.title = element_text(hjust = 0.5, size = 10)) +
+      scale_fill_viridis_c(option = "inferno", limits = c(0, 80)) +
+      scale_color_viridis_c(option = "inferno", limits = c(0, 80)) +
+      theme(axis.ticks.x = element_blank(),
+            axis.text.x = element_blank(),
+            axis.ticks.y = element_blank(),
+            axis.text.y = element_blank())
+    
+    return(p_cpp)
+  }
+}
+
+
+part2_nofp <- function(df_final, shift) {
+  
+  # sample the shift
+  df_temp <- df_final[which(df_final$shift == shift),]
+  df_temp$group <- ifelse(is.na(df_temp$merge_with) == TRUE, df_temp$region, df_temp$merge_with)
+  
+  # join by group
+  df_temp_m <- join_by_group(df_temp, 'group')
+  df_m_temp <- df_temp_m[which(df_temp_m$region %in% unique(df_temp$merge_with)),]
+  
+  # redistribute
+  df_temp_m$n_f_plc <- 2
+  df_temp_m$rn_f_pl <- redistribute(df_temp_m, 'sum')
+  
+  # title
+  ltitle <- ifelse(shift == '5-13',"Morning shift (5:00 - 13:00)",
+                   ifelse(shift == '13-21',"Afternoon shift (13:00 - 21:00)",
+                          "Night shift (21:00 - 5:00)"))
+  # plotting n_of_police
+  p_nofp_before <- plot_nofp(df_temp, df_m_temp, shift)
+  p_nofp_after <- plot_nofp(df_temp_m, df_m_temp, shift)
+  
+  ptitle <- ggplot() + 
+    labs(title = paste('Number of Officers in ',ltitle, sep = ''), 
+         subtitle = "before (left) and after (right) clustering")
+  p_nofp <- plot_grid(ptitle, plot_grid(p_nofp_before, p_nofp_after),
+                      ncol = 1, rel_heights = c(0.1, 1))
+  return(p_nofp)
+}
 ### run ####
-p_morning <- part2(df_final,'5-13')
+p_morning <- part2(df_final,'5-13') 
+p_morning_pol_58 <- part2_nofp(df_final_58, "5-13")
 ggsave(filename = "p_morning.png",
        plot = p_morning,
        path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
@@ -281,13 +377,64 @@ ggsave(filename = "p_night.png",
        plot = p_night,
        path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
 
+#optimal lowest variance CV
+df_all_58 <- into_final_df(crit_value = 58)
+
+# function to indicate which quads to merge together
+which_to_merge_58 <- function(){
+  to_merge <- df_all_58 %>%
+    rename(merge_with = to) %>%
+    select(from, shift, merge_with, geometry_to)
+  df_final <- left_join(df_shifts_avg, to_merge, by = c("region" = "from", "shift"))
+}
+
+df_final_58 <- which_to_merge_58()  
+p_morning_58 <- part2(df_final_58, '5-13')
+ggsave(filename = "p_morning_58.png",
+       plot = p_morning_58,
+       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+
+p_afternoon_58 <- part2(df_final_58,'13-21')
+ggsave(filename = "p_afternoon_58.png",
+       plot = p_afternoon_58,
+       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
+
+p_night_58 <- part2(df_final_58,'21-5')
+ggsave(filename = "p_night_58.png",
+       plot = p_night_58,
+       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
 
 
 ## think about ideal crit value cutoffs
 morn_deciles <- quantile(morning_pairs$sum_crimes, probs = seq(0, 1, 0.1))
 aftn_deciles <- quantile(afternoon_pairs$sum_crimes, probs = seq(0, 1, 0.1))
 nght_deciles <- quantile(night_pairs$sum_crimes, probs = seq(0, 1, 0.1))  
-  
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
 df_all_20 <- into_final_df(crit_value = 20)
 
 # function to indicate which quads to merge together
@@ -374,6 +521,5 @@ p_night_78 <- part2(df_final_78,'21-5')
 ggsave(filename = "p_night_78.png",
        plot = p_night_78,
        path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
-
 
   
