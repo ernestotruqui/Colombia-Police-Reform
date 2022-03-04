@@ -87,6 +87,7 @@ get_crime_sum <- function(df_pairs_stations = df_pairs_stations, df_timeofday, s
 morning_pairs <- get_crime_sum(df_pairs_stations = df_pairs_stations, df_timeofday = morning, shift = "5-13")
 afternoon_pairs <- get_crime_sum(df_pairs_stations = df_pairs_stations, df_timeofday = afternoon, shift = "13-21")
 night_pairs <- get_crime_sum(df_pairs_stations = df_pairs_stations, df_timeofday = night, shift = "21-5")
+
 # function that saves value on "from" column and drops any row with that repeated value in "to" column
 elimin_repeats <- function(df, index){
   value <- as.character(df[index, 1])
@@ -128,7 +129,7 @@ into_final_df <- function(crit_value){
     rename(geometry_to = geometry)
 }
 
-# choose 58 as optimal cutoff based on minimaztion of variance of crimes per officer
+# choose 55 as optimal cutoff based on minimization of variance of crimes per officer
 df_all <- into_final_df(crit_value = 55)
 
 # function to indicate which quads to merge together
