@@ -204,17 +204,18 @@ plot_cpp <- function(df_temp, df_m_temp, shift){
 }
 
 plot_nofp <- function(df_temp, df_m_temp, shift){
-  ltitle <- ifelse(shift=='5-13',"Morning shift (5:00 - 13:00)",
-                   ifelse(shift=='13-21',"Afternoon shift (13:00 - 21:00)",
-                          "Night shift (21:00 - 5:00)"))
   p_nofp <- ggplot() +
     geom_sf(data = df_temp, aes(fill = rn_f_pl))+
-    geom_sf(data = df_m_temp, colour = 'red', fill=NA)+
+    geom_sf(data = df_m_temp, colour = 'red', fill = NA)+
     labs(fill = "Number of Officers",
          color = "Number of Officers") +
-    theme(plot.title = element_text(hjust = 0.5, size = 10)) +
-    scale_fill_viridis_c(option = "inferno", limits = c(1, 6)) +
-    scale_color_viridis_c(option = "inferno", limits = c(1, 6)) 
+    theme(plot.title = element_text(hjust = 0.5, size = 10),
+          axis.ticks.x = element_blank(),
+          axis.text.x = element_blank(),
+          axis.ticks.y = element_blank(),
+          axis.text.y = element_blank()) +
+    scale_fill_viridis_c(option = "mako", limits = c(1, 6)) +
+    scale_color_viridis_c(option = "mako", limits = c(1, 6)) 
   
   return(p_nofp)
 }
@@ -264,14 +265,6 @@ part2 <- function(df_final, shift) {
             ncol = 3)
   
   # plotting n_of_police
-  p_nofp_before <- plot_nofp(df_temp, df_m_temp, shift)
-  p_nofp_after <- plot_nofp(df_temp_m, df_m_temp, shift)
-  
-  ptitle <- ggplot() + 
-    labs(title = paste('Number of Officers in ',ltitle, sep = ''), 
-         subtitle = "before (left) and after (right) clustering")
-  p_nofp <- plot_grid(ptitle, plot_grid(p_nofp_before, p_nofp_after),
-                      ncol = 1, rel_heights = c(0.1, 1))
  
   return(p_cpp)
 }
@@ -343,7 +336,7 @@ part2_nofp <- function(df_final, shift) {
   p_nofp_after <- plot_nofp(df_temp_m, df_m_temp, shift)
   
   ptitle <- ggplot() + 
-    labs(title = paste('Number of Officers in ',ltitle, sep = ''), 
+    labs(title = paste('Number of Officers per Quadrant-Shift'), 
          subtitle = "before (left) and after (right) clustering")
   p_nofp <- plot_grid(ptitle, plot_grid(p_nofp_before, p_nofp_after),
                       ncol = 1, rel_heights = c(0.1, 1))
@@ -354,7 +347,7 @@ part2_nofp <- function(df_final, shift) {
 ### final maps ####
 
 # final plots for morning
-p_morning_cpp <- part2(df_final,'5-13') 
+p_morning_cpp <- part2(df_final, '5-13') 
 ggsave(filename = "p_morning_cpp.png",
        plot = p_morning_cpp,
        path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
@@ -362,9 +355,9 @@ p_morning_redis <- compare_redis(df_final, "5-13")
 ggsave(filename = "p_morning_redis.png",
        plot = p_morning_redis,
        path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
-p_morning_pol_58 <- part2_nofp(df_final, "5-13")
-ggsave(filename = "p_morning_pol_58.png",
-       plot = p_morning_pol_58,
+p_morning_pol <- part2_nofp(df_final, "5-13")
+ggsave(filename = "p_morning_pol.png",
+       plot = p_morning_pol,
        path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
 
 # final plots for afternoon
@@ -376,9 +369,9 @@ p_afternoon_redis <- compare_redis(df_final, "13-21")
 ggsave(filename = "p_afternoon_redis.png",
        plot = p_afternoon_redis,
        path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
-p_afternoon_pol_58 <- part2_nofp(df_final, "13-21")
-ggsave(filename = "p_afternoon_pol_58.png",
-       plot = p_afternoon_pol_58,
+p_afternoon_pol <- part2_nofp(df_final, "13-21")
+ggsave(filename = "p_afternoon_pol.png",
+       plot = p_afternoon_pol,
        path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
 
 # final plots for night
@@ -390,9 +383,9 @@ p_night_redis <- compare_redis(df_final, "21-5")
 ggsave(filename = "p_night_redis.png",
        plot = p_night_redis,
        path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
-p_night_pol_58 <- part2_nofp(df_final, "21-5")
-ggsave(filename = "p_night_pol_58.png",
-       plot = p_night_pol_58,
+p_night_pol <- part2_nofp(df_final, "21-5")
+ggsave(filename = "p_night_pol.png",
+       plot = p_night_pol,
        path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
 
 
