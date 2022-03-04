@@ -129,7 +129,7 @@ into_final_df <- function(crit_value){
 }
 
 # choose 58 as optimal cutoff based on minimaztion of variance of crimes per officer
-df_all <- into_final_df(crit_value = 58)
+df_all <- into_final_df(crit_value = 55)
 
 # function to indicate which quads to merge together
 which_to_merge <- function(){
@@ -353,43 +353,43 @@ part2_nofp <- function(df_final, shift) {
 ### final maps ####
 
 # final plots for morning
-p_morning_cpp <- part2(df_final_58,'5-13') 
+p_morning_cpp <- part2(df_final,'5-13') 
 ggsave(filename = "p_morning_cpp.png",
        plot = p_morning_cpp,
        path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
-p_morning_redis <- compare_redis(df_final_58, "5-13")
+p_morning_redis <- compare_redis(df_final, "5-13")
 ggsave(filename = "p_morning_redis.png",
        plot = p_morning_redis,
        path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
-p_morning_pol_58 <- part2_nofp(df_final_58, "5-13")
+p_morning_pol_58 <- part2_nofp(df_final, "5-13")
 ggsave(filename = "p_morning_pol_58.png",
        plot = p_morning_pol_58,
        path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
 
 # final plots for afternoon
-p_afternoon_cpp <- part2(df_final_58,'13-21') 
+p_afternoon_cpp <- part2(df_final,'13-21') 
 ggsave(filename = "p_afternoon_cpp.png",
        plot = p_afternoon_cpp,
        path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
-p_afternoon_redis <- compare_redis(df_final_58, "13-21")
+p_afternoon_redis <- compare_redis(df_final, "13-21")
 ggsave(filename = "p_afternoon_redis.png",
        plot = p_afternoon_redis,
        path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
-p_afternoon_pol_58 <- part2_nofp(df_final_58, "13-21")
+p_afternoon_pol_58 <- part2_nofp(df_final, "13-21")
 ggsave(filename = "p_afternoon_pol_58.png",
        plot = p_afternoon_pol_58,
        path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
 
 # final plots for night
-p_night_cpp <- part2(df_final_58,'21-5') 
+p_night_cpp <- part2(df_final,'21-5') 
 ggsave(filename = "p_night_cpp.png",
        plot = p_night_cpp,
        path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
-p_night_redis <- compare_redis(df_final_58, "21-5")
+p_night_redis <- compare_redis(df_final, "21-5")
 ggsave(filename = "p_night_redis.png",
        plot = p_night_redis,
        path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
-p_night_pol_58 <- part2_nofp(df_final_58, "21-5")
+p_night_pol_58 <- part2_nofp(df_final, "21-5")
 ggsave(filename = "p_night_pol_58.png",
        plot = p_night_pol_58,
        path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
@@ -398,52 +398,6 @@ ggsave(filename = "p_night_pol_58.png",
 
 
 
-
-
-
-
-
-
-
-
-
-
-p_afternoon <- part2(df_final,'13-21')
-ggsave(filename = "p_afternoon.png",
-       plot = p_afternoon,
-       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
-
-p_night <- part2(df_final,'21-5')
-ggsave(filename = "p_night.png",
-       plot = p_night,
-       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
-
-#optimal lowest variance CV
-df_all_58 <- into_final_df(crit_value = 58)
-
-# function to indicate which quads to merge together
-which_to_merge_58 <- function(){
-  to_merge <- df_all_58 %>%
-    rename(merge_with = to) %>%
-    select(from, shift, merge_with, geometry_to)
-  df_final <- left_join(df_shifts_avg, to_merge, by = c("region" = "from", "shift"))
-}
-
-df_final_58 <- which_to_merge_58()  
-p_morning_58 <- part2(df_final_58, '5-13')
-ggsave(filename = "p_morning_58.png",
-       plot = p_morning_58,
-       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
-
-p_afternoon_58 <- part2(df_final_58,'13-21')
-ggsave(filename = "p_afternoon_58.png",
-       plot = p_afternoon_58,
-       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
-
-p_night_58 <- part2(df_final_58,'21-5')
-ggsave(filename = "p_night_58.png",
-       plot = p_night_58,
-       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
 
 
 ## think about ideal crit value cutoffs
@@ -458,109 +412,3 @@ nght_deciles <- quantile(night_pairs$sum_crimes, probs = seq(0, 1, 0.1))
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-df_all_20 <- into_final_df(crit_value = 20)
-
-# function to indicate which quads to merge together
-which_to_merge_20 <- function(){
-  to_merge <- df_all_20 %>%
-    rename(merge_with = to) %>%
-    select(from, shift, merge_with, geometry_to)
-  df_final <- left_join(df_shifts_avg, to_merge, by = c("region" = "from", "shift"))
-}
-
-df_final_20 <- which_to_merge_20()  
-p_morning_20 <- part2(df_final_20, '5-13')
-ggsave(filename = "p_morning_20.png",
-       plot = p_morning_20,
-       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
-
-p_afternoon_20 <- part2(df_final_20,'13-21')
-ggsave(filename = "p_afternoon_20.png",
-       plot = p_afternoon_20,
-       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
-
-p_night_20 <- part2(df_final_20,'21-5')
-ggsave(filename = "p_night_20.png",
-       plot = p_night_20,
-       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
-
-
-
-
-
-
-df_all_48 <- into_final_df(crit_value = 48.25)
-
-# function to indicate which quads to merge together
-which_to_merge_48 <- function(){
-  to_merge <- df_all_48 %>%
-    rename(merge_with = to) %>%
-    select(from, shift, merge_with, geometry_to)
-  df_final <- left_join(df_shifts_avg, to_merge, by = c("region" = "from", "shift"))
-}
-
-df_final_48 <- which_to_merge_48()  
-p_morning_48 <- part2(df_final_48, '5-13')
-ggsave(filename = "p_morning_48.png",
-       plot = p_morning_48,
-       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
-
-p_afternoon_48 <- part2(df_final_48,'13-21')
-ggsave(filename = "p_afternoon_48.png",
-       plot = p_afternoon_48,
-       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
-
-p_night_48 <- part2(df_final_48,'21-5')
-ggsave(filename = "p_night_48.png",
-       plot = p_night_48,
-       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
-
-
-
-
-
-df_all_78 <- into_final_df(crit_value = 78)
-
-# function to indicate which quads to merge together
-which_to_merge_78 <- function(){
-  to_merge <- df_all_78 %>%
-    rename(merge_with = to) %>%
-    select(from, shift, merge_with, geometry_to)
-  df_final <- left_join(df_shifts_avg, to_merge, by = c("region" = "from", "shift"))
-}
-
-df_final_78 <- which_to_merge_78()  
-p_morning_78 <- part2(df_final_78, '5-13')
-ggsave(filename = "p_morning_78.png",
-       plot = p_morning_78,
-       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
-
-p_afternoon_78 <- part2(df_final_78,'13-21')
-ggsave(filename = "p_afternoon_78.png",
-       plot = p_afternoon_78,
-       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
-
-p_night_78 <- part2(df_final_78,'21-5')
-ggsave(filename = "p_night_78.png",
-       plot = p_night_78,
-       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
-
-  
