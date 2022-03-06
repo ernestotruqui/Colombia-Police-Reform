@@ -14,10 +14,12 @@ library(tidyverse)
 library(leaflet)
 library(ggeasy)
 
-PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
-#PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data" 
-df_shift <- st_read(file.path(PATH, "df_shift.shp")) 
-
+#PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
+PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data" 
+# using 2019 data
+#df_shift <- st_read(file.path(PATH, "df_shift.shp")) 
+# using 2018-2021 averaged data
+df_shift <- st_read(file.path(PATH, "df_shifts_avg.shp")) 
 ## Histograms ####
 
 ### crime per police function ####
@@ -227,9 +229,16 @@ map_crimes_officer_quad_2019_morn <- ggplot() +
   labs(title = "Morning shift (5:00 - 13:00)",
        fill = "Crimes per Officer",
        color = "Crimes per Officer") +
-  theme(plot.title = element_text(hjust = 0.5, size = 25)) +
-  scale_fill_viridis_c(option = "inferno", limits = c(0, 162)) +
-  scale_color_viridis_c(option = "inferno", limits = c(0, 162)) 
+  theme(plot.title = element_text(hjust = 0.5, size = 25),
+        axis.ticks.x = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.text.y = element_blank(),
+        legend.text =  element_text(size = 12),
+        legend.title = element_text(size = 15)) +
+  # if using the averaged data limits are 0, 80. If using only 2019 data, limits are 0, 162.
+  scale_fill_viridis_c(option = "inferno", limits = c(0, 80)) +
+  scale_color_viridis_c(option = "inferno", limits = c(0, 80)) 
 map_crimes_officer_quad_2019_morn
 ggsave(filename = "map_crimes_officer_quad_2019_morn.png",
        plot = map_crimes_officer_quad_2019_morn,
@@ -240,9 +249,16 @@ map_crimes_officer_quad_2019_aftn <- ggplot() +
   labs(title = "Afternoon shift (13:00 - 21:00)",
        fill = "Crimes per Officer",
        color = "Crimes per Officer") +
-  theme(plot.title = element_text(hjust = 0.5, size = 25)) +
-  scale_fill_viridis_c(option = "inferno", limits = c(0, 162)) +
-  scale_color_viridis_c(option = "inferno", limits = c(0, 162)) 
+  theme(plot.title = element_text(hjust = 0.5, size = 25),
+        axis.ticks.x = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.text.y = element_blank(),
+        legend.text =  element_text(size = 12),
+        legend.title = element_text(size = 15)) +
+  # if using the averaged data limits are 0, 80. If using only 2019 data, limits are 0, 162.
+  scale_fill_viridis_c(option = "inferno", limits = c(0, 80)) +
+  scale_color_viridis_c(option = "inferno", limits = c(0, 80)) 
 map_crimes_officer_quad_2019_aftn
 ggsave(filename = "map_crimes_officer_quad_2019_aftn.png",
        plot = map_crimes_officer_quad_2019_aftn,
@@ -253,9 +269,16 @@ map_crimes_officer_quad_2019_nght <- ggplot() +
   labs(title = "Night shift (21:00 - 5:00)",
        fill = "Crimes per Officer",
        color = "Crimes per Officer") +
-  theme(plot.title = element_text(hjust = 0.5, size = 25)) +
-  scale_fill_viridis_c(option = "inferno", limits = c(0, 162)) +
-  scale_color_viridis_c(option = "inferno", limits = c(0, 162)) 
+  theme(plot.title = element_text(hjust = 0.5, size = 25),
+        axis.ticks.x = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.text.y = element_blank(),
+        legend.text =  element_text(size = 12),
+        legend.title = element_text(size = 15)) +
+  # if using the averaged data limits are 0, 80. If using only 2019 data, limits are 0, 162.
+  scale_fill_viridis_c(option = "inferno", limits = c(0, 80)) +
+  scale_color_viridis_c(option = "inferno", limits = c(0, 80)) 
 map_crimes_officer_quad_2019_nght
 ggsave(filename = "map_crimes_officer_quad_2019_nght.png",
        plot = map_crimes_officer_quad_2019_nght,
@@ -268,9 +291,16 @@ map_redis_crimes_officer_quad_2019_morn <- ggplot() +
   labs(title = "Morning shift (5:00 - 13:00)",
        fill = "Crimes per Officer",
        color = "Crimes per Officer") +
-  theme(plot.title = element_text(hjust = 0.5, size = 25)) +
-  scale_fill_viridis_c(option = "inferno", limits = c(0, 162)) +
-  scale_color_viridis_c(option = "inferno", limits = c(0, 162)) 
+  theme(plot.title = element_text(hjust = 0.5, size = 25),
+        axis.ticks.x = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.text.y = element_blank(),
+        legend.text =  element_text(size = 12),
+        legend.title = element_text(size = 15)) +
+  # if using the averaged data limits are 0, 80. If using only 2019 data, limits are 0, 162.
+  scale_fill_viridis_c(option = "inferno", limits = c(0, 80)) +
+  scale_color_viridis_c(option = "inferno", limits = c(0, 80)) 
 map_redis_crimes_officer_quad_2019_morn
 ggsave(filename = "map_redis_crimes_officer_quad_2019_morn.png",
        plot = map_redis_crimes_officer_quad_2019_morn,
@@ -281,9 +311,16 @@ map_redis_crimes_officer_quad_2019_aftn <- ggplot() +
   labs(title = "Afternoon shift (13:00 - 21:00)",
        fill = "Crimes per Officer",
        color = "Crimes per Officer") +
-  theme(plot.title = element_text(hjust = 0.5, size = 25)) +
-  scale_fill_viridis_c(option = "inferno", limits = c(0, 162)) +
-  scale_color_viridis_c(option = "inferno", limits = c(0, 162)) 
+  theme(plot.title = element_text(hjust = 0.5, size = 25),
+        axis.ticks.x = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.text.y = element_blank(),
+        legend.text =  element_text(size = 12),
+        legend.title = element_text(size = 15)) +
+  # if using the averaged data limits are 0, 80. If using only 2019 data, limits are 0, 162.
+  scale_fill_viridis_c(option = "inferno", limits = c(0, 80)) +
+  scale_color_viridis_c(option = "inferno", limits = c(0, 80)) 
 map_redis_crimes_officer_quad_2019_aftn
 ggsave(filename = "map_redis_crimes_officer_quad_2019_aftn.png",
        plot = map_redis_crimes_officer_quad_2019_aftn,
@@ -294,9 +331,16 @@ map_redis_crimes_officer_quad_2019_nght <- ggplot() +
   labs(title = "Night shift (21:00 - 5:00)",
        fill = "Crimes per Officer",
        color = "Crimes per Officer") +
-  theme(plot.title = element_text(hjust = 0.5, size = 25)) +
-  scale_fill_viridis_c(option = "inferno", limits = c(0, 162)) +
-  scale_color_viridis_c(option = "inferno", limits = c(0, 162)) 
+  theme(plot.title = element_text(hjust = 0.5, size = 25),
+        axis.ticks.x = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.text.y = element_blank(),
+        legend.text =  element_text(size = 12),
+        legend.title = element_text(size = 15)) +
+  # if using the averaged data limits are 0, 80. If using only 2019 data, limits are 0, 162.
+  scale_fill_viridis_c(option = "inferno", limits = c(0, 80)) +
+  scale_color_viridis_c(option = "inferno", limits = c(0, 80))
 map_redis_crimes_officer_quad_2019_nght
 ggsave(filename = "map_redis_crimes_officer_quad_2019_nght.png",
        plot = map_redis_crimes_officer_quad_2019_nght,
@@ -314,7 +358,13 @@ map_officers_quad_2019 <- ggplot() +
        subtitle = "Uniform distribution - 2 per quadrant",
        fill = "Officers per Quadrant") +
   theme(plot.title = element_text(hjust = 0.5, size = 25),
-        plot.subtitle = element_text(hjust = 0.5, size = 15)) +
+        plot.subtitle = element_text(hjust = 0.5, size = 15),
+        axis.ticks.x = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.text.y = element_blank(),
+        legend.text =  element_text(size = 12),
+        legend.title = element_text(size = 15)) +
   scale_fill_viridis_c(option = "mako", limits = c(1, 8))
 map_officers_quad_2019
 ggsave(filename = "map_officers_quad_2019.png",
@@ -330,7 +380,13 @@ map_redis_officers_quad_2019_morn <- ggplot() +
        subtitle = "Morning Shift",
        fill = "Officers per Quadrant") +
   theme(plot.title = element_text(hjust = 0.5, size = 25),
-        plot.subtitle = element_text(hjust = 0.5, size = 15)) +
+        plot.subtitle = element_text(hjust = 0.5, size = 15),
+        axis.ticks.x = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.text.y = element_blank(),
+        legend.text =  element_text(size = 12),
+        legend.title = element_text(size = 15)) +
   scale_fill_viridis_c(option = "mako", limits = c(1, 8)) 
 map_redis_officers_quad_2019_morn
 ggsave(filename = "map_redis_officers_quad_2019_morn.png",
@@ -345,7 +401,13 @@ map_redis_officers_quad_2019_aftn <- ggplot() +
        subtitle = "Afternoon Shift",
        fill = "Officers per Quadrant") +
   theme(plot.title = element_text(hjust = 0.5, size = 25),
-        plot.subtitle = element_text(hjust = 0.5, size = 15)) +
+        plot.subtitle = element_text(hjust = 0.5, size = 15),
+        axis.ticks.x = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.text.y = element_blank(),
+        legend.text =  element_text(size = 12),
+        legend.title = element_text(size = 15)) +
   scale_fill_viridis_c(option = "mako", limits = c(1, 8)) 
 map_redis_officers_quad_2019_aftn
 ggsave(filename = "map_redis_officers_quad_2019_aftn.png",
@@ -360,7 +422,13 @@ map_redis_officers_quad_2019_nght <- ggplot() +
        subtitle = "Night Shift",
        fill = "Officers per Quadrant") +
   theme(plot.title = element_text(hjust = 0.5, size = 25),
-        plot.subtitle = element_text(hjust = 0.5, size = 15)) +
+        plot.subtitle = element_text(hjust = 0.5, size = 15),
+        axis.ticks.x = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.text.y = element_blank(),
+        legend.text =  element_text(size = 12),
+        legend.title = element_text(size = 15)) +
   scale_fill_viridis_c(option = "mako", limits = c(1, 8)) 
 map_redis_officers_quad_2019_nght
 ggsave(filename = "map_redis_officers_quad_2019_nght.png",
@@ -373,7 +441,7 @@ ggsave(filename = "map_redis_officers_quad_2019_nght.png",
 crimes_p_officer <- df_shift %>%
   st_drop_geometry() %>%
   group_by(shift) %>%
-  summarise(`Mean Crimes` = mean(cpp),
+  dplyr::summarise(`Mean Crimes` = mean(cpp),
             `Median Crimes` = median(cpp),
             `Max Crimes` = max(cpp),
             `Min Crimes` = min(cpp)) %>%
