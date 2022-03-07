@@ -204,7 +204,65 @@ crime_per_police <- function(df, crime_type, n_of_police = ''){
   return(df$temp)
 }
 
+get_df_shift_dy <- function(df_all_raw, crit_value){
+  df_shift_dy <- data.frame(matrix(ncol = 3, nrow = 0))
+  colnames(df_shift_dy) <- c('region', 'cpp', 'shift')
+  
+  # get df_all
+  df_all <- into_final_df(df_all_raw, crit_value)
+  
+  # function to indicate which quads to merge together
+  df_final <- which_to_merge(df_all)
+  
+  for (shift in unique(df_all_raw$shift)) {
+    
+    # sample the shift
+    df_temp <- df_final[which(df_final$shift == shift),]
+    df_temp$group <- ifelse(is.na(df_temp$merge_with) == TRUE, df_temp$region, df_temp$merge_with)
+    
+    # join by group
+    df_temp_m <- join_by_group(df_temp, 'group')
+    df_m_temp <- df_temp_m[which(df_temp_m$region %in% unique(df_temp$merge_with)),]
+    
+    # redistribute
+    df_temp_m$n_f_plc <- 2
+    df_temp_m$rn_f_pl <- redistribute(df_temp_m, 'sum')
+    
+    # crime per police
+    df_temp_m$cpp <- crime_per_police(df_temp_m, 'sum','rn_f_pl')
+    
+    # get df_out
+    df_out <- st_drop_geometry(df_temp_m)[,c('region','cpp')]
+    df_out$shift <- shift
+    
+    # row bind
+    df_shift_dy <- rbind(df_shift_dy,df_out)
+  }
+  
+  return(df_shift_dy)
+}
 
+df_shift_dy <- get_df_shift_dy(df_all_raw,55)
+
+plot_cpp_new <- function(df_shift_dy,df_shifts_avg){
+  df_plot <- data.frame(cpp = c(df_shifts_avg$rcpp,df_shift_dy$cpp),
+                        group = c(rep('before',nrow(df_shifts_avg)),
+                                  rep('after',nrow(df_shift_dy))))
+  p <- ggplot(df_plot, aes(x = cpp, color = group, fill = group)) +
+    geom_histogram(aes(y=..density..), alpha = 0.05, position = "identity", binwidth = 1)+
+    geom_density(alpha = .2)+
+    ggtitle('Crime per officer: before and after dynamising quadrants') +
+    xlab(label = "Crimes per officer by quadrant-shift") +
+    theme(plot.title = element_text(hjust = 0.5, size = 15)) +
+    ylim(0, 0.1)+xlim(0,150)+
+    theme(plot.subtitle = element_text(hjust = 0.5, size = 10))
+  return(p)
+}
+
+###run: plot_cpp_new####
+p_cpp_new <- plot_cpp_new(df_shift_dy,df_shifts_avg)
+
+###(cont)####
 c_v_m <- function(df_all_raw, crit_value, shift) {
   # get df_all
   df_all <- into_final_df(df_all_raw, crit_value)
@@ -231,13 +289,16 @@ c_v_m <- function(df_all_raw, crit_value, shift) {
   # stats
   var_temp <- var(df_temp_m$rcpp)
   mean_temp <- mean(df_temp_m$rcpp)
+  max_temp <- max(df_temp_m$rcpp)
+  min_temp <- min(df_temp_m$rcpp)
+  median_temp <- median(df_temp_m$rcpp)
 
-  return(c(crit_value, mean_temp, var_temp))
+  return(c(crit_value, mean_temp, min_temp, median_temp, max_temp, var_temp))
 }
 
 get_df_sens <- function(nmin,nmax,df_all_raw,shift){
-  df_temp <- data.frame(matrix(ncol = 3, nrow = 0))
-  colnames(df_temp) <- c('crit_value', 'mean', 'variance')
+  df_temp <- data.frame(matrix(ncol = 6, nrow = 0))
+  colnames(df_temp) <- c('crit_value','mean', 'min', 'median', 'max', 'variance')
   for (n in c(nmin:nmax)) {
     df_temp[nrow(df_temp) + 1,] = c_v_m(df_all_raw,n,shift)
   }
