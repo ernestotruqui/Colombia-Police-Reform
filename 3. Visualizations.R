@@ -31,7 +31,7 @@ plot_cpp <- function(df, cpp, rcpp){
                   measure.vars = c(cpp, rcpp),
                   variable.name = "distribution",
                   value.name = "crime_per_police")
-  levels(df_long$distribution) <- c('before','after')
+  levels(df_long$distribution) <- c('status quo','re-allocation')
   group_mean <- ddply(df_long, "distribution", summarise, 
                       grp.mean=mean(crime_per_police, na.rm = T))
   
@@ -44,20 +44,22 @@ plot_cpp <- function(df, cpp, rcpp){
     geom_density(alpha = .2)+
     ggtitle('Crime per officer: before and after redistribution') +
     xlab(label = "Crimes per officer by quadrant-shift") +
-    theme(plot.title = element_text(hjust = 0.5, size = 15)) +
+    theme(plot.title = element_text(hjust = 0.5, size = 15),
+          legend.text =  element_text(size = 12),
+          legend.title = element_blank(),
+          axis.text = element_text(size = 12),
+          axis.title = element_text(size = 13)) +
     ylim(0, 0.07)
   #print(p)
   #return(p)
 }
 
 ## Optimal reallocation - proportional -----------
-p_cpp <- plot_cpp(df_shift, 'cpp', 'rcpp') +
-  labs(subtitle = "Proportional redistribution according to crime per quadrant") +
-  theme(plot.subtitle = element_text(hjust = 0.5, size = 10))
+p_cpp <- plot_cpp(df_shift, 'cpp', 'rcpp') 
 p_cpp
 ggsave(filename = "hist_crimes_p_officer.png",
        plot = p_cpp,
-       path = PATH)
+       path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
 
 
 ## Different re-allocation strategies: Quintiles ----------
