@@ -461,3 +461,10 @@ crimes_p_officer_redis <- df_shift %>%
 write.csv(x = crimes_p_officer_redis,
           file = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform/crimes_p_officer_redis.csv",
           row.names = F)
+
+
+df_shift %>%
+  mutate(less_five = ifelse(sum <= 5, 1, 0),
+         more_fifty = ifelse(sum >= 100, 1, 0)) %>%
+  summarise(sum_five = sum(less_five),
+            sum_fifty = sum(more_fifty))
