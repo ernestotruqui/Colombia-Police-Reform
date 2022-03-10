@@ -169,9 +169,9 @@ map_simple <- ggplot() +
        title = "Crimes per quadrant in Medellin",
        subtitle = "Average over 2018-2021") +
   theme(plot.title = element_text(hjust = 0.5, size = 25),
-        plot.subtitle = element_text(hjust = 0.5, size = 25)) +
-  scale_fill_viridis_c(option = "inferno", limits = c(0, 170)) +
-  scale_color_viridis_c(option = "inferno", limits = c(0, 170)) 
+        plot.subtitle = element_text(hjust = 0.5, size = 15)) +
+  scale_fill_viridis_c(option = "inferno", limits = c(0, 120)) +
+  scale_color_viridis_c(option = "inferno", limits = c(0, 120)) 
 ggsave(filename = "map_simple.png",
        plot = map_simple,
        path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
