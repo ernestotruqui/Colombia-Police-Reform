@@ -245,23 +245,24 @@ get_df_shift_dy <- function(df_all_raw, crit_value){
 df_shift_dy <- get_df_shift_dy(df_all_raw,55)
 
 plot_cpp_new <- function(df_shift_dy,df_shifts_avg){
-  df_plot <- data.frame(cpp = c(df_shifts_avg$rcpp,df_shift_dy$cpp),
-                        group = c(rep('before',nrow(df_shifts_avg)),
-                                  rep('after',nrow(df_shift_dy))))
+  df_plot <- data.frame(cpp = c(df_shifts_avg$cpp,df_shifts_avg$rcpp,df_shift_dy$cpp),
+                        group = c(rep('Status Quo',nrow(df_shifts_avg)),
+                                  rep('Proportional Distribution',nrow(df_shifts_avg)),
+                                  rep('Dynamic Quadrant',nrow(df_shift_dy))))
   p <- ggplot(df_plot, aes(x = cpp, color = group, fill = group)) +
     geom_histogram(aes(y=..density..), alpha = 0.05, position = "identity", binwidth = 1)+
     geom_density(alpha = .2)+
-    ggtitle('Crime per officer: before and after dynamising quadrants') +
+    ggtitle('Crimes per officer') +
     xlab(label = "Crimes per officer by quadrant-shift") +
     theme(plot.title = element_text(hjust = 0.5, size = 15)) +
-    ylim(0, 0.1)+xlim(0,150)+
+    ylim(0, 0.1)+xlim(0,85)+
     theme(plot.subtitle = element_text(hjust = 0.5, size = 10))
   return(p)
 }
 
 ###run: plot_cpp_new####
 p_cpp_new <- plot_cpp_new(df_shift_dy,df_shifts_avg)
-
+p_cpp_new
 ###(cont)####
 c_v_m <- function(df_all_raw, crit_value, shift) {
   # get df_all
@@ -295,6 +296,21 @@ c_v_m <- function(df_all_raw, crit_value, shift) {
 
   return(c(crit_value, mean_temp, min_temp, median_temp, max_temp, var_temp))
 }
+
+sstats <- function(df_shifts_avg,shift){
+  rcpp <- df_shifts_avg[which(df_shifts_avg$shift==shift),10]
+  mea <- mean(rcpp)
+  min <- min(rcpp)
+  med <- median(rcpp)
+  max <- max(rcpp)
+  var <- var(rcpp)
+  return(c(mea,min,med,max,var))
+}
+
+
+
+
+
 
 get_df_sens <- function(nmin,nmax,df_all_raw,shift){
   df_temp <- data.frame(matrix(ncol = 6, nrow = 0))
