@@ -31,9 +31,9 @@ plot_cpp <- function(df, cpp, rcpp){
                   measure.vars = c(cpp, rcpp),
                   variable.name = "distribution",
                   value.name = "crime_per_police")
-  levels(df_long$distribution) <- c('status quo','re-allocation')
+  levels(df_long$distribution) <- c('status quo','simple re-distribution')
   group_mean <- ddply(df_long, "distribution", summarise, 
-                      grp.mean=mean(crime_per_police, na.rm = T))
+                      grp.mean = mean(crime_per_police, na.rm = T))
   
   
   # plot
@@ -42,17 +42,16 @@ plot_cpp <- function(df, cpp, rcpp){
     geom_vline(data = group_mean, aes(xintercept = grp.mean, color = distribution),
                size = 1.25)+
     geom_density(alpha = .2)+
-    ggtitle('Crime per officer: before and after redistribution') +
-    xlab(label = "Crimes per officer by quadrant-shift") +
+    #ggtitle('Crime per officer: before and after redistribution') +
+    xlab(label = "Crimes per officer") +
     theme(plot.title = element_text(hjust = 0.5, size = 15),
           legend.text =  element_text(size = 12),
           legend.title = element_blank(),
           axis.text = element_text(size = 12),
           axis.title = element_text(size = 13)) +
     ylim(0, 0.07)
-  #print(p)
-  #return(p)
 }
+
 
 ## Optimal reallocation - proportional -----------
 p_cpp <- plot_cpp(df_shift, 'cpp', 'rcpp') 
@@ -169,9 +168,9 @@ map_simple <- ggplot() +
        title = "Crimes per quadrant in Medellin",
        subtitle = "Average over 2018-2021") +
   theme(plot.title = element_text(hjust = 0.5, size = 25),
-        plot.subtitle = element_text(hjust = 0.5, size = 25)) +
-  scale_fill_viridis_c(option = "inferno", limits = c(0, 170)) +
-  scale_color_viridis_c(option = "inferno", limits = c(0, 170)) 
+        plot.subtitle = element_text(hjust = 0.5, size = 15)) +
+  scale_fill_viridis_c(option = "inferno", limits = c(0, 120)) +
+  scale_color_viridis_c(option = "inferno", limits = c(0, 120)) 
 ggsave(filename = "map_simple.png",
        plot = map_simple,
        path = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform")
@@ -399,17 +398,17 @@ map_redis_officers_quad_2019_aftn <- ggplot() +
   geom_sf(data = df_shift[df_shift$shift=='13-21',],
           #aes(fill = rn_of_police)) +
           aes(fill = rn_f_pl)) +
-  labs(title = "Officers per Quadrant - Redistribution",
-       subtitle = "Afternoon Shift",
+  labs(#title = "Officers per Quadrant - Redistribution",
+       #subtitle = "Afternoon Shift",
        fill = "Officers per Quadrant") +
-  theme(plot.title = element_text(hjust = 0.5, size = 25),
-        plot.subtitle = element_text(hjust = 0.5, size = 15),
+  theme(#plot.title = element_text(hjust = 0.5, size = 15),
+        #plot.subtitle = element_text(hjust = 0.5, size = 10),
         axis.ticks.x = element_blank(),
         axis.text.x = element_blank(),
         axis.ticks.y = element_blank(),
         axis.text.y = element_blank(),
-        legend.text =  element_text(size = 12),
-        legend.title = element_text(size = 15)) +
+        legend.text =  element_text(size = 10),
+        legend.title = element_text(size = 12)) +
   scale_fill_viridis_c(option = "mako", limits = c(1, 8)) 
 map_redis_officers_quad_2019_aftn
 ggsave(filename = "map_redis_officers_quad_2019_aftn.png",
@@ -461,3 +460,10 @@ crimes_p_officer_redis <- df_shift %>%
 write.csv(x = crimes_p_officer_redis,
           file = "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Colombia-Police-Reform/crimes_p_officer_redis.csv",
           row.names = F)
+
+
+df_shift %>%
+  mutate(less_five = ifelse(sum <= 5, 1, 0),
+         more_fifty = ifelse(sum >= 100, 1, 0)) %>%
+  summarise(sum_five = sum(less_five),
+            sum_fifty = sum(more_fifty))
