@@ -50,9 +50,9 @@ get_stations <- function(df_pairs = pairs, df_stations = morning){
     st_drop_geometry() %>%
     select(region, station)
   morn_pairs_test <- left_join(df_pairs, df_shifts_stations, by = c("from" = "region")) %>%
-    rename(station_from = station) 
+    dplyr::rename(station_from = station) 
   morn_pairs_test <- left_join(morn_pairs_test, df_shifts_stations, by = c("to" = "region")) %>%
-    rename(station_to = station)
+    dplyr::rename(station_to = station)
   morn_pairs_test <- morn_pairs_test %>%
     filter(station_from == station_to)
 }
@@ -65,9 +65,9 @@ get_crime_sum <- function(df_pairs_stations = df_pairs_stations, df_timeofday, s
     st_drop_geometry() %>%
     select(region, sum)
   df_temp <- left_join(df_pairs_stations, df_quads_sums, by = c("from" = "region")) %>%
-    rename(sum_from = sum)
+    dplyr::rename(sum_from = sum)
   df_temp <- left_join(df_temp, df_quads_sums, by = c("to" = "region")) %>%
-    rename(sum_to = sum)
+    dplyr::rename(sum_to = sum)
   df_temp <- df_temp %>%
     mutate(sum_crimes = sum_from + sum_to,
            shift = shift) %>%
@@ -124,9 +124,9 @@ into_final_df <- function(crit_value){
     filter(shift == "5-13") %>%
     select(region, geometry)
   df_all <- left_join(df_all, df_geoms, by = c("from" = "region")) %>%
-    rename(geometry_from = geometry)
+    dplyr::rename(geometry_from = geometry)
   df_all <- left_join(df_all, df_geoms, by = c("to" = "region")) %>%
-    rename(geometry_to = geometry)
+    dplyr::rename(geometry_to = geometry)
 }
 
 # choose 55 as optimal cutoff based on minimization of variance of crimes per officer
@@ -135,7 +135,7 @@ df_all <- into_final_df(crit_value = 55)
 # function to indicate which quads to merge together
 which_to_merge <- function(){
   to_merge <- df_all %>%
-    rename(merge_with = to) %>%
+    dplyr::rename(merge_with = to) %>%
     select(from, shift, merge_with, geometry_to)
   df_final <- left_join(df_shifts_avg, to_merge, by = c("region" = "from", "shift"))
 }

@@ -31,9 +31,9 @@ plot_cpp <- function(df, cpp, rcpp){
                   measure.vars = c(cpp, rcpp),
                   variable.name = "distribution",
                   value.name = "crime_per_police")
-  levels(df_long$distribution) <- c('status quo','re-allocation')
+  levels(df_long$distribution) <- c('status quo','simple re-distribution')
   group_mean <- ddply(df_long, "distribution", summarise, 
-                      grp.mean=mean(crime_per_police, na.rm = T))
+                      grp.mean = mean(crime_per_police, na.rm = T))
   
   
   # plot
@@ -42,17 +42,16 @@ plot_cpp <- function(df, cpp, rcpp){
     geom_vline(data = group_mean, aes(xintercept = grp.mean, color = distribution),
                size = 1.25)+
     geom_density(alpha = .2)+
-    ggtitle('Crime per officer: before and after redistribution') +
-    xlab(label = "Crimes per officer by quadrant-shift") +
+    #ggtitle('Crime per officer: before and after redistribution') +
+    xlab(label = "Crimes per officer") +
     theme(plot.title = element_text(hjust = 0.5, size = 15),
           legend.text =  element_text(size = 12),
           legend.title = element_blank(),
           axis.text = element_text(size = 12),
           axis.title = element_text(size = 13)) +
     ylim(0, 0.07)
-  #print(p)
-  #return(p)
 }
+
 
 ## Optimal reallocation - proportional -----------
 p_cpp <- plot_cpp(df_shift, 'cpp', 'rcpp') 
@@ -399,17 +398,17 @@ map_redis_officers_quad_2019_aftn <- ggplot() +
   geom_sf(data = df_shift[df_shift$shift=='13-21',],
           #aes(fill = rn_of_police)) +
           aes(fill = rn_f_pl)) +
-  labs(title = "Officers per Quadrant - Redistribution",
-       subtitle = "Afternoon Shift",
+  labs(#title = "Officers per Quadrant - Redistribution",
+       #subtitle = "Afternoon Shift",
        fill = "Officers per Quadrant") +
-  theme(plot.title = element_text(hjust = 0.5, size = 25),
-        plot.subtitle = element_text(hjust = 0.5, size = 15),
+  theme(#plot.title = element_text(hjust = 0.5, size = 15),
+        #plot.subtitle = element_text(hjust = 0.5, size = 10),
         axis.ticks.x = element_blank(),
         axis.text.x = element_blank(),
         axis.ticks.y = element_blank(),
         axis.text.y = element_blank(),
-        legend.text =  element_text(size = 12),
-        legend.title = element_text(size = 15)) +
+        legend.text =  element_text(size = 10),
+        legend.title = element_text(size = 12)) +
   scale_fill_viridis_c(option = "mako", limits = c(1, 8)) 
 map_redis_officers_quad_2019_aftn
 ggsave(filename = "map_redis_officers_quad_2019_aftn.png",
