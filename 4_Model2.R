@@ -10,8 +10,8 @@ library(maptools)
 library(cowplot)
 
 
-#PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
- PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data"
+PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
+#PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data"
 df_shifts_avg <- st_read(file.path(PATH, "df_shifts_avg.shp"))
 morning <- df_shifts_avg %>%
   filter(shift == "5-13") %>%
@@ -186,6 +186,26 @@ crime_per_police <- function(df, crime_type, n_of_police = ''){
   return(df$temp)
 }
 
+plot_empty <- function(df_final, shift){
+  # sample the shift
+  df_temp <- df_final[which(df_final$shift == shift),]
+  df_temp$group <- ifelse(is.na(df_temp$merge_with) == TRUE, df_temp$region, df_temp$merge_with)
+  
+  # join by group
+  df_temp_m <- join_by_group(df_temp, 'group')
+  df_m_temp <- df_temp_m[which(df_temp_m$region %in% unique(df_temp$merge_with)),]
+  
+  p_emp <- ggplot() +
+    geom_sf(data = df_temp)+
+    geom_sf(data = df_m_temp, colour = 'red', fill = NA)+
+    theme(axis.ticks.x = element_blank(),
+          axis.text.x = element_blank(),
+          axis.ticks.y = element_blank(),
+          axis.text.y = element_blank())
+  return(p_emp)
+}
+
+
 plot_cpp <- function(df_temp, df_m_temp, shift){
   p_cpp <- ggplot() +
     geom_sf(data = df_temp, aes(fill = rcpp))+
@@ -344,6 +364,8 @@ part2_nofp <- function(df_final, shift) {
 }
 
 
+
+
 ### final maps ####
 
 # final plots for morning
@@ -390,8 +412,10 @@ ggsave(filename = "p_night_pol.png",
 
 
 
-
-
+# clusters
+p_emp_morning <- plot_empty(df_final,'5-13')+ggtitle('Morning')
+p_emp_afternoon <- plot_empty(df_final,'13-21')+ggtitle('Afternoon')
+p_emp_night <- plot_empty(df_final,'21-5')+ggtitle('Night')
 
 
 ## think about ideal crit value cutoffs

@@ -11,8 +11,8 @@ library(cowplot)
 library(hrbrthemes)
 
 
-#PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
- PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data"
+PATH <- "E://Files/HaHaHariss/22Winter/Policy Lab/Data"
+#PATH <- "C:/Users/52322/OneDrive - The University of Chicago/Documents/Harris/2022 Winter/Policy Lab/Data/Data"
 
 #PART1####
 
@@ -250,13 +250,15 @@ plot_cpp_new <- function(df_shift_dy,df_shifts_avg){
                                   rep('Proportional Distribution',nrow(df_shifts_avg)),
                                   rep('Dynamic Quadrant',nrow(df_shift_dy))))
   p <- ggplot(df_plot, aes(x = cpp, color = group, fill = group)) +
-    geom_histogram(aes(y=..density..), alpha = 0.05, position = "identity", binwidth = 1)+
-    geom_density(alpha = .2)+
+    geom_histogram(aes(y=..density..), alpha = 0.1, position = "identity", binwidth = 1)+
+    geom_density(alpha = .3)+
     ggtitle('Crimes per officer') +
     xlab(label = "Crimes per officer by quadrant-shift") +
     theme(plot.title = element_text(hjust = 0.5, size = 15)) +
     ylim(0, 0.1)+xlim(0,85)+
-    theme(plot.subtitle = element_text(hjust = 0.5, size = 10))
+    theme(plot.subtitle = element_text(hjust = 0.5, size = 10))+
+    scale_color_manual(values=c('goldenrod1', "turquoise3", "salmon"))+
+    scale_fill_manual(values=c('goldenrod1', "turquoise3", "salmon"))
   return(p)
 }
 
