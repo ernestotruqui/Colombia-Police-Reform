@@ -226,7 +226,7 @@ plot_cpp <- function(df_temp, df_m_temp, shift){
 plot_nofp <- function(df_temp, df_m_temp, shift){
   p_nofp <- ggplot() +
     geom_sf(data = df_temp, aes(fill = rn_f_pl))+
-    geom_sf(data = df_m_temp, colour = 'red', fill = NA)+
+    geom_sf(data = df_m_temp, colour = 'red', fill = NA, size = 1.23)+
     labs(fill = "Number of Officers",
          color = "Number of Officers") +
     theme(plot.title = element_text(hjust = 0.5, size = 10),
@@ -234,8 +234,8 @@ plot_nofp <- function(df_temp, df_m_temp, shift){
           axis.text.x = element_blank(),
           axis.ticks.y = element_blank(),
           axis.text.y = element_blank()) +
-    scale_fill_viridis_c(option = "mako", limits = c(1, 6)) +
-    scale_color_viridis_c(option = "mako", limits = c(1, 6)) 
+    scale_fill_viridis_c(option = "mako", limits = c(1, 8)) +
+    scale_color_viridis_c(option = "mako", limits = c(1, 8)) 
   
   return(p_nofp)
 }

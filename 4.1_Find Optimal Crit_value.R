@@ -247,8 +247,8 @@ df_shift_dy <- get_df_shift_dy(df_all_raw,55)
 plot_cpp_new <- function(df_shift_dy,df_shifts_avg){
   df_plot <- data.frame(cpp = c(df_shifts_avg$cpp,df_shifts_avg$rcpp,df_shift_dy$cpp),
                         group = c(rep('Status Quo',nrow(df_shifts_avg)),
-                                  rep('Proportional Distribution',nrow(df_shifts_avg)),
-                                  rep('Dynamic Quadrant',nrow(df_shift_dy))))
+                                  rep('Simple Re-distribution',nrow(df_shifts_avg)),
+                                  rep('Clustered Re-distribution',nrow(df_shift_dy))))
   p <- ggplot(df_plot, aes(x = cpp, color = group, fill = group)) +
     geom_histogram(aes(y=..density..), alpha = 0.1, position = "identity", binwidth = 1)+
     geom_density(alpha = .3)+
@@ -343,8 +343,28 @@ p_n <- ggplot(df_sens_night, aes(x=crit_value)) +
   scale_fill_viridis_c(option = "inferno", limits = c(1, 8)) +
   ggtitle('Night')
 
-p_m
-p_a
-p_n
+p_a <- ggplot(df_sens_afternoon, aes(x=crit_value)) +
+  geom_line(aes(y=mean), size=1,colour = "black") + 
+  geom_line(aes(y=variance/2),size=1,colour = "darkred") +
+  scale_y_continuous(name = "Mean",sec.axis = sec_axis(~.*2, name="Variance")) +
+  theme_ipsum() +
+  theme(
+    axis.title.y = element_text(color = "black",size=14),
+    axis.title.y.right = element_text(color = "darkred",size=14)
+  )+
+  scale_fill_viridis_c(option = "inferno", limits = c(1, 8)) +
+  ggtitle('Afternoon')
+
+p_m <- ggplot(df_sens_morning, aes(x=crit_value)) +
+  geom_line(aes(y=mean), size=1,colour = "black") + 
+  geom_line(aes(y=variance/2),size=1,colour = "darkred") +
+  scale_y_continuous(name = "Mean",sec.axis = sec_axis(~.*2, name="Variance")) +
+  theme_ipsum() +
+  theme(
+    axis.title.y = element_text(color = "black",size=14),
+    axis.title.y.right = element_text(color = "darkred",size=14)
+  )+
+  scale_fill_viridis_c(option = "inferno", limits = c(1, 8)) +
+  ggtitle('Morning')
 
 plot_grid(p_m, p_a, p_n, ncol = 3)
